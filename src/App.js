@@ -10,13 +10,33 @@ class App extends Component {
 
     this.state = {
       TokenInstance: TokenContract.at ('0x584211Ed3a8D3f3c5CEF5DF1fDc6EC03315348E3'),
-      balance: 'Check your',
+      balance: null,
       date: (new Date()).toLocaleString()
     }
 
     this.queryName = this.queryName.bind (this);
     this.queryBalance = this.queryBalance.bind (this);
     this.handleClickBalance = this.handleClickBalance.bind (this);
+    this.handleLoad = this.handleLoad.bind (this);
+  }
+
+  componentDidMount() {
+    window.addEventListener('load', this.handleLoad);
+  }
+
+  handleLoad() {
+    const { balanceOf } = this.state.TokenInstance;
+
+    balanceOf (
+      window.web3.eth.accounts[0],
+      (err, balance) => {
+        if (err) console.error ('An error occured::::', err);
+        let tokens = window.web3.fromWei(balance.toString(), 'ether');
+        this.setState({
+          balance: tokens
+        });
+      }
+    )
   }
 
   queryName () {
@@ -64,8 +84,8 @@ class App extends Component {
           <h1 className="App-title">Talao</h1>
           <p>The first Ethereum-based Talents Autonomous Organization.</p>
           <div>
-            <button onClick={ this.handleClickBalance }>
-              { this.state.balance } tokens
+            <button>
+              You have { this.state.balance } Talao tokens
             </button>
           </div>
         </header>
@@ -75,6 +95,9 @@ class App extends Component {
         <footer className="App-footer">
           <div className="container green">
             <h2>Old tests</h2>
+            <button onClick={ this.handleClickBalance }>
+              You have { this.state.balance } Talao tokens
+            </button>
             <p>{ this.state.date }</p>
             <p>
               <button onClick={ this.queryName }> Token name (console.log)</button>
