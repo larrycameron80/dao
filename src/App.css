@@ -3,14 +3,12 @@
 }
 
 .App-logo {
-  animation: App-logo-spin infinite 20s cubic-bezier(.50,0,.50,1);
+  animation: App-logo-spin infinite 10s cubic-bezier(.50,0,.50,1);
   height: 80px;
 }
 
-.App-header {
-  background-color: #291b51;
-  padding: 20px;
-  color: white;
+.App-header p {
+  margin-bottom: 0;
 }
 
 .App-title {
@@ -19,25 +17,33 @@
 
 .App-intro {
   font-size: large;
-  padding: 20px;
-  background-color: white;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
 }
 
 .container {
   padding: 20px;
-  color: white;
+}
+.white {
+  color: black;
+  background-color: white;
 }
 .blue {
+  color: white;
   background-color: #291b51;
 }
 .yellow {
+  color: black;
   background-color: #fed709;
 }
 .green {
+  color: white;
   background-color: #0e6c3f;
 }
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.yellow a {
+  color: black;
 }
