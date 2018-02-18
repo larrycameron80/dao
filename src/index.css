@@ -1,6 +1,13 @@
+@font-face {
+  font-family: 'Akkmono';
+  font-style:normal;
+  src: local('Akkmono'), url(./font/akkmono.eot) format('embedded-opentype'), url(./font/akkmono.woff) format('woff');
+}
+
 body {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  font-family: 'Akkmono', sans-serif;
+  /* Raleway */
   background-color: #0e6c3f;
 }

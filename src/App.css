@@ -7,6 +7,11 @@
   height: 80px;
 }
 
+@keyframes App-logo-spin {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
 .App-header p {
   margin-bottom: 0;
 }
@@ -19,9 +24,14 @@
   font-size: large;
 }
 
-@keyframes App-logo-spin {
-  from { transform: rotateY(0deg); }
-  to { transform: rotateY(360deg); }
+.App-intro-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.App-intro-buttons button {
+  margin: 0 10px;
 }
 
 .container {

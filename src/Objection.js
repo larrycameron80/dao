@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './Objection.css';
+import ObjectionForm from './objection/ObjectionForm';
 
 class Objection extends Component {
   constructor (props) {
@@ -14,10 +15,15 @@ class Objection extends Component {
       objectionProposedValue: null,
       objectionCurrentJustification: null,
       objectionCurrentOwner: null,
+      objectionHasRejected: null, //TODO delete if hasRejected stays private
+      objectionUserHasRejected: false,
+      objectionSucceed: null,
     }
+
     this.handleLoad = this.handleLoad.bind (this);
     this.handleSubmitOpen = this.handleSubmitOpen.bind (this);
-    this.handleSubmitReject = this.handleSubmitReject.bind (this);
+    this.handleClickReject = this.handleClickReject.bind (this);
+    this.state.event = this.state.objectionInstance.Succeed();
   }
   componentDidMount() {
     window.addEventListener('load', this.handleLoad);
@@ -58,6 +64,16 @@ class Objection extends Component {
         objectionCurrentOwner: currentOwner
       });
     });
+    //TODO delete if hasRejected stays private
+    // const { hasRejected } = this.state.objectionInstance;
+    // hasRejected ((err, hasRejected) => {
+    //   if (err) console.error ('An error occured:', err);
+    //   else if  (this.state.objectionInstance.includes(window.web3.eth.accounts[0])) {
+    //      this.setState ({
+    //        objectionUserHasRejected: true
+    //      });
+    //    }
+    // });
   }
   handleSubmitOpen() {
     const { ending_date } = this.state.objectionInstance;
@@ -68,41 +84,55 @@ class Objection extends Component {
       });
     });
   }
-  handleSubmitReject() {
-    const { ending_date } = this.state.objectionInstance;
-    ending_date ((err, ending_date) => {
-      if (err) console.error ('An error occured:', err);
-      this.setState ({
-        objectionEndingDate: ending_date
-      });
-    });
+  handleClickReject() {
+    const { reject } = this.state.objectionInstance;
+    reject (
+      {
+        from: window.web3.eth.accounts[0],
+      },
+      (err, tx) => {
+        if (err) console.error ('An error occured:', err);
+        else {
+          console.log(tx);
+          this.setState({
+            objectionUserHasRejected: true
+          });
+        }
+      }
+    );
   }
   render() {
+
+    this.state.event.watch ((err, event) => {
+      console.log(event);
+    });
+
     return (
       <div className="Objection">
-        <div className="Objection-open" style={ this.state.objectionEndingDate ? { display: 'none' } : {} }>
+        <div className="Objection-open" style={ this.state.objectionEndingDate === '0' ? {} : { display: 'none' }}>
           <h2>No current objection</h2>
-          <p>TODO</p>
-          <form>
-            <input id="variable_name" type="text" placeholder="Variable name" />
-            <input id="proposed_value" type="text" placeholder="Proposed value" />
-            <input id="justification" type="text" placeholder="Justification" />
-            <input type="submit" />
-          </form>
+          <p>Would you like to propose to change a variable value?</p>
+          <ObjectionForm/>
         </div>
-        <div className="Objection-reject" style={ this.state.objectionEndingDate ? {} : { display: 'none' } }>
+        <div className="Objection-reject" style={ this.state.objectionEndingDate === '0' ? { display: 'none' } : {}}>
           <h2>Current objection</h2>
-          <p>
+          <p className="big">
             Assign the value <strong>{ this.state.objectionProposedValue }</strong> to the variable <strong>{ this.state.objectionVariableName }</strong>.
           </p>
           <p>
-            <a href={ 'https://etherscan.io/address/' + this.state.objectionCurrentOwner } target="_blank">{ this.state.objectionCurrentOwner }</a> said: <em>{ this.state.objectionCurrentJustification }</em>
+            <a href={ 'https://etherscan.io/address/' + this.state.objectionCurrentOwner } target="_blank">{ this.state.objectionCurrentOwner }</a> said:
           </p>
-          <button>
+          <p>
+            <em>{ this.state.objectionCurrentJustification }</em>
+          </p>
+          <button onClick={ this.handleClickReject } style={ this.state.objectionUserHasRejected ? { display: 'none' } : {} }>
             Reject
           </button>
-          <h3>Results</h3>
-          <p>TODO</p>
+          <p><em>TODO: hasRejected should be public to hide this button if a user already rejected. Also, we could display the list of the members who rejected the objection. At last, double vote should be prevented in contract.</em></p>
+        </div>
+        <div className="Objection-list">
+          <h3>Objection events</h3>
+          <p><em>TODO: The events are watched and logged in console.log, for now.</em></p>
         </div>
       </div>
     );

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import logo from './Talao-logo.png';
 import './App.css';
+import EtherButton from './ether/EtherButton';
 import Objection from './Objection';
 import Clock from './Clock';
 
@@ -55,14 +56,21 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header container white">
-          <img src={logo} className="App-logo" alt="logo" />
+          <a href="/">
+            <img src={logo} className="App-logo" alt="logo" />
+          </a>
           <h1 className="App-title">Talao</h1>
           <p>The first Ethereum-based Talents Autonomous Organization.</p>
         </header>
         <div className="App-intro container blue">
-          <button>
-            You have { this.state.tokenBalance } Talao tokens
-          </button>
+          <div className="App-intro-buttons">
+            <div className="Token-button">
+              <button>
+                My Talao tokens: { this.state.tokenBalance }
+              </button>
+            </div>
+            <EtherButton/>
+          </div>
         </div>
         <div className="App-main container yellow">
           <Objection/>
