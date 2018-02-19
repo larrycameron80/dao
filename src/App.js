@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import logo from './Talao-logo.png';
+import logo from './assets/images/Talao-logo.png';
 import './App.css';
 import EtherButton from './ether/EtherButton';
-import Objection from './Objection';
-import Clock from './Clock';
+import Objection from './objection/Objection';
+import Clock from './clock/Clock';
 
 class App extends Component {
   constructor (props) {

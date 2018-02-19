@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './Objection.css';
-import ObjectionForm from './objection/ObjectionForm';
+import ObjectionForm from './ObjectionForm';
 
 class Objection extends Component {
   constructor (props) {
@@ -128,7 +128,7 @@ class Objection extends Component {
           <button onClick={ this.handleClickReject } style={ this.state.objectionUserHasRejected ? { display: 'none' } : {} }>
             Reject
           </button>
-          <p><em>TODO: hasRejected should be public to hide this button if a user already rejected. Also, we could display the list of the members who rejected the objection. At last, double vote should be prevented in contract.</em></p>
+          <p><em>TODO: hasRejected should be public to hide this button if a user already rejected. Also, we could display the list of the members who rejected the objection. At last, voting again should be prevented in contract.</em></p>
         </div>
         <div className="Objection-list">
           <h3>Objection events</h3>

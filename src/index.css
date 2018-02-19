@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'Akkmono';
   font-style:normal;
-  src: local('Akkmono'), url(./font/akkmono.eot) format('embedded-opentype'), url(./font/akkmono.woff) format('woff');
+  src: local('Akkmono'), url(./assets/fonts/akkmono.eot) format('embedded-opentype'), url(./assets/fonts/akkmono.woff) format('woff');
 }
 
 body {

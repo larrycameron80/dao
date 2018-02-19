@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Component } from 'react';
 import './Clock.css';
 
-class Clock extends React.Component {
+class Clock extends Component {
   constructor(props) {
     super(props);
     this.state = {
