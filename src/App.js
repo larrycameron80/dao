@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import logo from './assets/images/Talao-logo.png';
 import './App.css';
+import TokenButton from './token/TokenButton';
 import EtherButton from './ether/EtherButton';
 import Objection from './objection/Objection';
 import Clock from './clock/Clock';
@@ -51,6 +52,13 @@ class App extends Component {
         tokenName: name
       });
     });
+  }
+  renderTokenButton() {
+    return (
+      <TokenButton
+        value={this.state.tokenBalance}
+      />
+    );
   }
   render() {
     return (
