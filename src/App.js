@@ -4,7 +4,6 @@ import './App.css';
 import TokenButton from './token/TokenButton';
 import EtherButton from './ether/EtherButton';
 import Objection from './objection/Objection';
-import Clock from './clock/Clock';
 
 class App extends Component {
   constructor (props) {
@@ -15,11 +14,10 @@ class App extends Component {
     this.state = {
       tokenInstance: tokenContract.at ('0x584211Ed3a8D3f3c5CEF5DF1fDc6EC03315348E3'),
       tokenBalance: null,
-      tokenName: 'What is the token name?'
+      tokenTransferEvent: null,
+      message: null
     }
     this.handleLoad = this.handleLoad.bind (this);
-    this.handleClickTokenName = this.handleClickTokenName.bind (this);
-    this.queryTokenSymbol = this.queryTokenSymbol.bind (this);
   }
   componentDidMount() {
     window.addEventListener('load', this.handleLoad);
@@ -30,28 +28,27 @@ class App extends Component {
       window.web3.eth.accounts[0],
       (err, balance) => {
         if (err) console.error ('An error occured::::', err);
-        let tokens = window.web3.fromWei(balance.toString(), 'ether');
+        let tokens = (window.web3.fromWei(balance.toString(), 'ether'));
+        tokens = parseFloat(tokens).toFixed(2);
         this.setState({
           tokenBalance: tokens
         });
       }
-    )
-  }
-  queryTokenSymbol () {
-    const { symbol } = this.state.tokenInstance;
-    symbol ((err, symbol) => {
-      if (err) console.error ('An error occured', err);
-      console.log ('The symbol of the token is', symbol, '.');
-    });
-  }
-  handleClickTokenName () {
-    const { name } = this.state.tokenInstance;
-    name ((err, name) => {
-      if (err) console.error ('An error occured', err);
-      this.setState ({
-        tokenName: name
-      });
-    });
+    );
+    this.state.tokenInstance.Transfer().watch (
+      (err, event) => {
+        if (err) console.error (err);
+        else {
+          if (event['args']['to'] === window.web3.eth.accounts[0]) {
+            console.log(event);
+            let tokens_wei = event['args']['value'].toString();
+            this.setState({
+              message: 'You just received ' + window.web3.fromWei(tokens_wei) + ' TALAO from ' + event['args']['from']
+            });
+          }
+        }
+      }
+    );
   }
   renderTokenButton() {
     return (
@@ -71,6 +68,9 @@ class App extends Component {
           <p>The first Ethereum-based Talents Autonomous Organization.</p>
         </header>
         <div className="App-intro container blue">
+          <div className="App-intro-message">
+            { this.state.message }
+          </div>
           <div className="App-intro-buttons">
             <div className="Token-button">
               <button>
@@ -84,16 +84,7 @@ class App extends Component {
           <Objection/>
         </div>
         <footer className="App-footer container green">
-          <h2>Tests and old</h2>
-          <p>
-            <button onClick={ this.handleClickTokenName }>
-              { this.state.tokenName }
-            </button>
-          </p>
-          <p>
-            <button onClick={ this.queryTokenSymbol }> What is the token symbol? (console.log)</button>
-          </p>
-          <Clock/>
+          <p>Talao React.js prototype v0.1.3</p>
         </footer>
       </div>
     );

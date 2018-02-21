@@ -15,8 +15,10 @@ class EtherButton extends Component {
     window.web3.eth.getBalance(window.web3.eth.accounts[0], (err, balance) => {
       if (err) console.error ('An error occured:', err);
       else {
+        let ethers = window.web3.fromWei(balance.toString());
+        ethers = parseFloat(ethers).toFixed(2);
         this.setState ({
-          etherBalance: window.web3.fromWei(balance.toString())
+          etherBalance: ethers
         });
       }
     });

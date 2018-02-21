@@ -15,7 +15,8 @@ contract Objection {
     int public proposed_value;
     bytes32 public variable_name;
     uint public ending_date;
-    address[] public hasRejected;
+    address[] hasRejected;
+    int public currentObjectionId;
 
     struct Values { int value; bool used; }
 
@@ -32,6 +33,7 @@ contract Objection {
 
     event Fail();
     event Succeed(bytes32 varname, int value);
+    event UserHasRejected(int indexed objection_id, address user);
 
     function openObjection(string justification, int value, bytes32 variable) public {
         assert (status != State.waiting);
@@ -41,11 +43,20 @@ contract Objection {
         variable_name = variable;
         proposed_value = value;
         ending_date = now + uint(values['objection_duration'].value);
+        currentObjectionId++;
     }
 
     function reject() public {
-        if (status == State.waiting && (now < ending_date))
+        if (status == State.waiting && (now < ending_date)) {
           hasRejected.push(msg.sender);
+          UserHasRejected(currentObjectionId, msg.sender);
+        }
+    }
+
+    function currentObjection() public returns (int) {
+      if (ending_date > 0) {
+        return currentObjectionId;
+      }
     }
 
     // return true if an objection is ended and an event fired. False in other cases

@@ -24,10 +24,15 @@
   font-size: large;
 }
 
+.App-intro-message {
+  margin-bottom: 10px;
+}
+
 .App-intro-buttons {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 10px;
 }
 
 .App-intro-buttons button {
@@ -36,6 +41,11 @@
 
 .container {
   padding: 20px;
+}
+.message {
+  width: 33%;
+  margin-left: auto;
+  margin-right: auto;
 }
 .white {
   color: black;
