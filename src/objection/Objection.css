@@ -2,12 +2,8 @@
   padding: 20px 0;
 }
 
-.big {
-  font-size: 20px;
-}
-
-#Objection-open-form-submit {
-  font-size: 20px;
+.Objection-rejected-list ul {
+  padding: 0;
 }
 
 .Objection-rejected-list li {

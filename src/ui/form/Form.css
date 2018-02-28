@@ -1,19 +1,23 @@
-.pure-form fieldset {
-  padding: unset;
-}
-
+/* Global */
 input[type="text"] {
   text-align: left;
 }
 
-.green input[type="text"] {
-  color: #0e6c3f;
+input[type=submit] {
+  font-size: 20px;
+  margin: 20px 0 0 0;
+}
+
+/* Pure form */
+.pure-form fieldset {
+  padding: unset;
 }
 
 .pure-control-group:last-child {
   margin: 0;
 }
 
-.pure-form .btn {
-  margin: 20px 0 0 0;
+/* Colors */
+.green input[type="text"] {
+  color: #0e6c3f;
 }

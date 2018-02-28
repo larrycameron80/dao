@@ -20,7 +20,7 @@ class App extends Component {
         <footer className="App-footer green">
           <p>Talao DAO prototype v0.2.1</p>
           <ul className="App-footer-links">
-            <li><a href="#" target="_blank" rel="noopener noreferrer">Source code</a></li>
+            <li><a href="/" target="_blank" rel="noopener noreferrer">Source code</a></li>
             <li><a href="https://talao.io" target="_blank" rel="noopener noreferrer">Talao.io</a></li>
             <li><a href="https://www.emindhub.com" target="_blank" rel="noopener noreferrer">eMindHub.com</a></li>
           </ul>

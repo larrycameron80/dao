@@ -10,7 +10,10 @@ class Button extends Component {
   }
   render() {
     return (
-      <button className="pure-button btn">
+      <button
+        className={ !(this.props.disabled) ? 'pure-button btn' : 'pure-button pure-button-disabled btn' }
+        onClick={ this.props.onClick }
+      >
         { !!(this.props.icon) ? <FontAwesomeIcon icon={ this.props.icon } /> : '' } { this.props.value }
       </button>
     );

@@ -18,6 +18,12 @@ body {
   background-color: #0e6c3f;
 }
 
+/* Sizes */
+.big {
+  font-size: 20px;
+  margin: 30px;
+}
+
 /* Links */
 a:hover {
   text-decoration: none;

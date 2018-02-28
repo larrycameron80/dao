@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
 import './Objection.css';
 import ObjectionForm from './ObjectionForm';
+import Button from '../ui/button/Button';
+import faBan from '@fortawesome/fontawesome-free-solid/faBan';
 
 class Objection extends Component {
   constructor (props) {
     super (props);
 
-    const objectionContract = window.web3.eth.contract ([{"constant":true,"inputs":[],"name":"currentJustification","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"names","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"reject","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"forceEnd","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"proposed_value","outputs":[{"name":"","type":"int256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"ending_date","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"currentObjectionId","outputs":[{"name":"","type":"int256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"currentOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"currentObjection","outputs":[{"name":"","type":"int256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"variable_name","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"endObjection","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"bytes32"}],"name":"values","outputs":[{"name":"value","type":"int256"},{"name":"used","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"justification","type":"string"},{"name":"value","type":"int256"},{"name":"variable","type":"bytes32"}],"name":"openObjection","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[],"name":"Fail","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"varname","type":"bytes32"},{"indexed":false,"name":"value","type":"int256"}],"name":"Succeed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"objection_id","type":"int256"},{"indexed":false,"name":"user","type":"address"}],"name":"UserHasRejected","type":"event"}]);
+    const objectionContractObject = window.web3.eth.contract ([{"constant":true,"inputs":[],"name":"currentJustification","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"names","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"reject","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"forceEnd","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"proposed_value","outputs":[{"name":"","type":"int256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"ending_date","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"currentObjectionId","outputs":[{"name":"","type":"int256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"currentOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"currentObjection","outputs":[{"name":"","type":"int256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"variable_name","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"endObjection","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"bytes32"}],"name":"values","outputs":[{"name":"value","type":"int256"},{"name":"used","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"justification","type":"string"},{"name":"value","type":"int256"},{"name":"variable","type":"bytes32"}],"name":"openObjection","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[],"name":"Fail","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"varname","type":"bytes32"},{"indexed":false,"name":"value","type":"int256"}],"name":"Succeed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"objection_id","type":"int256"},{"indexed":false,"name":"user","type":"address"}],"name":"UserHasRejected","type":"event"}]);
 
     this.state = {
-      objectionInstance: objectionContract.at ('0xEa51467f393fb5030B61cdfB332244697cE5EF91'),
+      objectionContract: objectionContractObject.at ('0x9D8F7Fb04c740Aaa34995d0E19fcaD92A6001C5B'),
       objectionEndingDate: null,
       objectionVariableName: null,
       objectionProposedValue: null,
@@ -21,16 +23,12 @@ class Objection extends Component {
       userHasRejected: null,
     }
 
-    this.handleLoad = this.handleLoad.bind (this);
     this.handleSubmitOpen = this.handleSubmitOpen.bind (this);
-    this.handleClickReject = this.handleClickReject.bind (this);
-    this.state.event = this.state.objectionInstance.Succeed();
+    this.handleReject = this.handleReject.bind (this);
+    this.state.event = this.state.objectionContract.Succeed();
   }
   componentDidMount() {
-    window.addEventListener('load', this.handleLoad);
-  }
-  handleLoad() {
-    const { ending_date } = this.state.objectionInstance;
+    const { ending_date } = this.state.objectionContract;
     ending_date ((err, ending_date) => {
       if (err) console.error (err);
       else {
@@ -38,14 +36,14 @@ class Objection extends Component {
           objectionEndingDate: ending_date.toString()
         });
         if (ending_date > 0) {
-          const { currentObjectionId } = this.state.objectionInstance;
+          const { currentObjectionId } = this.state.objectionContract;
           currentObjectionId ((err, objection_id) => {
             if (err) console.error (err);
             else {
               this.setState ({
                 currentObjectionId: objection_id.toString()
               });
-              this.state.objectionInstance.UserHasRejected(
+              this.state.objectionContract.UserHasRejected(
                 {objection_id: this.state.currentObjectionId},
                 {fromBlock: 0, toBlock: 'latest'}
               )
@@ -71,28 +69,28 @@ class Objection extends Component {
         }
       }
     });
-    const { variable_name } = this.state.objectionInstance;
+    const { variable_name } = this.state.objectionContract;
     variable_name ((err, variable_name) => {
       if (err) console.error ('An error occured:', err);
       this.setState ({
         objectionVariableName: window.web3.toAscii(variable_name).replace(/\u0000/g, '')
       });
     });
-    const { proposed_value } = this.state.objectionInstance;
+    const { proposed_value } = this.state.objectionContract;
     proposed_value ((err, proposed_value) => {
       if (err) console.error ('An error occured:', err);
       this.setState ({
         objectionProposedValue: proposed_value.toString()
       });
     });
-    const { currentJustification } = this.state.objectionInstance;
+    const { currentJustification } = this.state.objectionContract;
     currentJustification ((err, currentJustification) => {
       if (err) console.error ('An error occured:', err);
       this.setState ({
         objectionCurrentJustification: currentJustification
       });
     });
-    const { currentOwner } = this.state.objectionInstance;
+    const { currentOwner } = this.state.objectionContract;
     currentOwner ((err, currentOwner) => {
       if (err) console.error ('An error occured:', err);
       this.setState ({
@@ -101,7 +99,7 @@ class Objection extends Component {
     });
   }
   handleSubmitOpen() {
-    const { ending_date } = this.state.objectionInstance;
+    const { ending_date } = this.state.objectionContract;
     ending_date ((err, ending_date) => {
       if (err) console.error ('An error occured:', err);
       this.setState ({
@@ -109,8 +107,8 @@ class Objection extends Component {
       });
     });
   }
-  handleClickReject() {
-    const { reject } = this.state.objectionInstance;
+  handleReject() {
+    const { reject } = this.state.objectionContract;
     reject (
       {
         from: window.web3.eth.accounts[0],
@@ -119,7 +117,7 @@ class Objection extends Component {
         if (err) console.error ('An error occured:', err);
         else {
           this.setState({
-            objectionUserHasRejected: true
+            userHasRejected: true
           });
         }
       }
@@ -141,20 +139,14 @@ class Objection extends Component {
             <p className="big">
               Assign the value <strong>{ this.state.objectionProposedValue }</strong> to the variable <strong>{ this.state.objectionVariableName }</strong>.
             </p>
-          </div>
-          <p>
-            <a href={ 'https://etherscan.io/address/' + this.state.objectionCurrentOwner } target="_blank">{ this.state.objectionCurrentOwner }</a> said:
-          </p>
-          <p>
-            <em>{ this.state.objectionCurrentJustification }</em>
-          </p>
-          <div className="box green" style={ this.state.userHasRejected ? { display: 'none' } : {} }>
-            <button onClick={ this.handleClickReject }>
-              Reject
-            </button>
-          </div>
-          <div className="box green" style={ this.state.userHasRejected ? {} : { display: 'none' }}>
-            You have rejected this objection, but the vote is not finished yet.
+            <p>The author, { this.state.objectionCurrentOwner }, said:</p>
+            <p><em>{ this.state.objectionCurrentJustification }</em></p>
+            <div style={ this.state.userHasRejected ? { display: 'none' } : {} }>
+              <Button value="Reject" icon={ faBan } onClick={ this.handleReject } />
+            </div>
+            <div style={ this.state.userHasRejected ? {} : { display: 'none' }}>
+              <Button value="You have rejected this objection." icon={ faBan } disabled="true" />
+            </div>
           </div>
         </div>
         <ObjectionRejectedList {...this.state } />
@@ -166,10 +158,8 @@ class Objection extends Component {
 class ObjectionRejectedList extends Component {
   renderItem(item, index) {
     return (
-      <li key={ index }className="Objection-rejected-item">
-        <a href={ 'https://etherscan.io/address/' + item } target="_blank">
-          { item }
-        </a>
+      <li key={ index }>
+        { item }
       </li>
     );
   }
@@ -190,7 +180,6 @@ class ObjectionRejectedList extends Component {
   }
   render() {
     if (this.props.usersHaveRejected !== null && this.props.usersHaveRejected.length > 0) {
-      //console.log(this.props.usersHaveRejected);
       var list = this.props.usersHaveRejected.map(i => i.args['user']);
       return (
         <div className="Objection-rejected-list">

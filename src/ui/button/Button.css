@@ -23,12 +23,12 @@
   background-color: #abb2bf;
 }
 
-.btn-green-inversed {
+.green .btn {
   color: white;
   background-color: #0e6c3f;
 }
 
-.btn-green-inversed:hover {
+.green .btn:hover {
   color: #0e6c3f;
   background-color: white;
 }
