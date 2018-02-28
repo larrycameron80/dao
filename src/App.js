@@ -9,7 +9,7 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <a href="/">
-            <img src={logo} className="App-header-logo" alt="logo" />
+            <img src={ logo } className="App-header-logo" alt="logo" />
           </a>
           <h1 className="App-header-title">Talao</h1>
           <p>The first Ethereum-based Talents Autonomous Organization.</p>

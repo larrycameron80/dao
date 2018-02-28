@@ -1,35 +1,62 @@
 import React, { Component } from 'react';
+import Button from '../ui/button/Button';
+import faEthereum from '@fortawesome/fontawesome-free-brands/faEthereum';
 
 class EtherButton extends Component {
   constructor (props) {
     super (props);
+
     this.state = {
-      etherBalance: null
+      userAddress: null,
+      userBalance: null
     }
-    this.handleLoad = this.handleLoad.bind (this);
   }
   componentDidMount() {
-    window.addEventListener('load', this.handleLoad);
-  }
-  handleLoad() {
-    window.web3.eth.getBalance(window.web3.eth.accounts[0], (err, balance) => {
-      if (err) console.error ('An error occured:', err);
+    // Get user adress.
+    window.web3.eth.getAccounts((err, addresses) => {
+      if (err) console.error (err);
       else {
-        let ethers = window.web3.fromWei(balance.toString());
-        ethers = parseFloat(ethers).toFixed(2);
-        this.setState ({
-          etherBalance: ethers
+        this.setState({
+          userAddress: addresses[0]
+        });
+        // Get user balance.
+        window.web3.eth.getBalance(this.state.userAddress, (err, balance) => {
+          if (err) console.error (err);
+          else {
+            let ethers = window.web3.fromWei(balance.toString());
+            ethers = parseFloat(ethers).toFixed(2);
+            this.setState ({
+              userBalance: ethers
+            });
+          }
+        });
+        // Watch latest block.
+        const filterLatestBlock = window.web3.eth.filter('latest');
+        filterLatestBlock.watch((err, block) => {
+          if (err) console.error (err);
+          else {
+            // Update user balance.
+            window.web3.eth.getBalance(this.state.userAddress, (err, balance) => {
+              if (err) console.error (err);
+              else {
+                let ethers = window.web3.fromWei(balance.toString());
+                ethers = parseFloat(ethers).toFixed(2);
+                this.setState ({
+                  userBalance: ethers
+                });
+              }
+            });
+          }
         });
       }
     });
   }
+  componentWillUnmount() {
+    this.filterLatestBlock.stopWatching();
+  }
   render() {
     return (
-      <div className="Ether-button">
-        <button>
-          My Ethers: { this.state.etherBalance }
-        </button>
-      </div>
+      <Button value={ 'My Ethers: ' + this.state.userBalance } icon={ faEthereum } />
     );
   }
 }

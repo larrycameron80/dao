@@ -69,7 +69,7 @@ class AppConnected extends Component {
                 My Talao tokens: { this.state.tokenBalance }
               </button>
             </div>
-            <EtherButton/>
+            <EtherButton />
           </div>
         </div>
         <div className="AppConnected-main container yellow">

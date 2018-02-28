@@ -10,7 +10,7 @@ class Button extends Component {
   }
   render() {
     return (
-      <button className="pure-button btn btn-inversed">
+      <button className="pure-button btn">
         { this.icon() } { this.props.value }
       </button>
     );

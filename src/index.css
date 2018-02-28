@@ -4,10 +4,34 @@
   src: local('Akkmono'), url(./assets/fonts/akkmono.eot) format('embedded-opentype'), url(./assets/fonts/akkmono.woff) format('woff');
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;
   font-family: 'Akkmono', sans-serif;
-  /* Raleway */
   background-color: #0e6c3f;
+}
+
+.white {
+  color: black;
+  background-color: white;
+}
+.blue {
+  color: white;
+  background-color: #291b51;
+}
+.yellow {
+  color: black;
+  background-color: #fed709;
+}
+.green {
+  color: white;
+  background-color: #0e6c3f;
+}
+
+.yellow a {
+  color: black;
 }
