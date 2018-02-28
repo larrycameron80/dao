@@ -31,7 +31,7 @@ class EtherButton extends Component {
           }
         });
         // Watch latest block.
-        const filterLatestBlock = window.web3.eth.filter('latest');
+        let filterLatestBlock = window.web3.eth.filter('latest');
         filterLatestBlock.watch((err, block) => {
           if (err) console.error (err);
           else {

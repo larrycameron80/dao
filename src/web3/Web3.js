@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
+import './Web3.css';
 import { Web3Provider } from 'react-web3';
 import AppConnected from '../AppConnected';
 
 class Web3Unavailable extends Component {
   render() {
     return (
-      <p>You need to use a web browser with the <a href="https://metamask.io/" rel="noopener noreferrer" target="_blank">Metamask extension</a> enabled, or any Ethereum compatible web browser.</p>
+      <div className="Web3 blue">
+        <p>You need to use a web browser with the <a href="https://metamask.io/" rel="noopener noreferrer" target="_blank">Metamask extension</a> enabled, or any Ethereum compatible web browser.</p>
+      </div>
     );
   }
 }
@@ -13,7 +16,7 @@ class Web3Unavailable extends Component {
 class Web3UnavailableAccount extends Component {
   render() {
     return (
-      <div>
+      <div className="Web3 blue">
         <p>Great, you have a web browser with the Metamask extension enabled!</p>
         <p><strong>Log in now in Metamask</strong> to access Ethereum features.</p>
       </div>

@@ -1,13 +1,16 @@
+/* Better normalize. */
+* {
+  box-sizing: border-box;
+}
+
+/* Fonts */
 @font-face {
   font-family: 'Akkmono';
   font-style:normal;
   src: local('Akkmono'), url(./assets/fonts/akkmono.eot) format('embedded-opentype'), url(./assets/fonts/akkmono.woff) format('woff');
 }
 
-* {
-  box-sizing: border-box;
-}
-
+/* Body */
 body {
   margin: 0;
   padding: 0;
@@ -15,6 +18,12 @@ body {
   background-color: #0e6c3f;
 }
 
+/* Links */
+a:hover {
+  text-decoration: none;
+}
+
+/* Global colors. */
 .white {
   color: black;
   background-color: white;
@@ -32,6 +41,11 @@ body {
   background-color: #0e6c3f;
 }
 
+.blue a,
+.green a {
+  color: white;
+}
+.white a,
 .yellow a {
   color: black;
 }

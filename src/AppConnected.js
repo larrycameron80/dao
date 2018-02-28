@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import './AppConnected.css';
-import TokenButton from './token/TokenButton';
+import Button from './ui/button/Button';
 import EtherButton from './ethereum/EtherButton';
-import Objection from './objection/Objection';
+//import Objection from './objection/Objection';
 
 class AppConnected extends Component {
   constructor (props) {
@@ -14,14 +14,11 @@ class AppConnected extends Component {
       tokenContract: tokenContractObject.at ('0x584211Ed3a8D3f3c5CEF5DF1fDc6EC03315348E3'),
       tokenBalance: null,
       tokenTransferEvent: null,
-      message: null
+      message: null,
+      userAddress: null
     }
-    this.handleLoad = this.handleLoad.bind (this);
   }
   componentDidMount() {
-    window.addEventListener('load', this.handleLoad);
-  }
-  handleLoad() {
     const { balanceOf } = this.state.tokenContract;
     balanceOf (
       window.web3.eth.accounts[0],
@@ -49,31 +46,20 @@ class AppConnected extends Component {
       }
     );
   }
-  renderTokenButton() {
-    return (
-      <TokenButton
-        value={this.state.tokenBalance}
-      />
-    );
-  }
   render() {
     return (
       <div className="AppConnected">
-        <div className="AppConnected-intro container blue">
-          <div className="AppConnected-intro-message">
-            { this.state.message }
-          </div>
-          <div className="AppConnected-intro-buttons">
-            <div className="Token-button">
-              <button>
-                My Talao tokens: { this.state.tokenBalance }
-              </button>
-            </div>
+        <div className="AppConnected-header blue">
+          <div className="AppConnected-header-buttons">
+            <Button value={ 'My Talaos: ' + this.state.tokenBalance } />
             <EtherButton />
+          </div>
+          <div className="AppConnected-header-message">
+            { this.state.message }
           </div>
         </div>
         <div className="AppConnected-main container yellow">
-          <Objection/>
+          {/* <Objection/> */}
         </div>
       </div>
     );

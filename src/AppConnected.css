@@ -1,23 +1,15 @@
-.AppConnected-intro {
+.AppConnected-header {
   font-size: large;
+  padding: 20px 0;
 }
 
-.AppConnected-intro-message {
-  margin-bottom: 10px;
-}
-
-.AppConnected-intro-buttons {
+.AppConnected-header-buttons {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
 }
 
-.AppConnected-intro-buttons button {
-  margin: 0 10px;
-}
-
-.AppConnected-intro-message {
+.AppConnected-header-message {
   width: 33%;
   margin-left: auto;
   margin-right: auto;

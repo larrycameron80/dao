@@ -127,7 +127,7 @@ class Objection extends Component {
   }
   render() {
     return (
-      <div className="Objection">
+      <div className="Objection yellow">
         <div className="Objection-open" style={ this.state.objectionEndingDate === '0' ? {} : { display: 'none' }}>
           <h2>No current objection</h2>
           <p>Would you like to propose to change a variable value?</p>

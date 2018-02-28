@@ -11,7 +11,7 @@ class Button extends Component {
   render() {
     return (
       <button className="pure-button btn">
-        { this.icon() } { this.props.value }
+        { !!(this.props.icon) ? <FontAwesomeIcon icon={ this.props.icon } /> : '' } { this.props.value }
       </button>
     );
   }

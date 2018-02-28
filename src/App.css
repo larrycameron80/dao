@@ -4,8 +4,6 @@
 
 .App-header {
   padding: 20px;
-  color: black;
-  background-color: white;
 }
 
 .App-header-logo {
@@ -26,30 +24,6 @@
   margin-bottom: 0;
 }
 
-.App-content {
-  padding: 20px;
-  color: white;
-  background-color: #291b51;
-}
-
-.App-content a {
-  color: white;
-}
-
-.App-content a:hover {
-  text-decoration: none;
-}
-
 .App-footer {
   padding: 20px;
-  color: white;
-  background-color: #0e6c3f;
-}
-
-.App-footer a {
-  color: white;
-}
-
-.App-footer a:hover {
-  text-decoration: none;
 }
