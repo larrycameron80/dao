@@ -1,0 +1,28 @@
+.btn {
+  margin: 5px;
+  color: #282c34;
+  background-color: #abb2bf;
+  border: 2px solid #282c34;
+  transition: all linear .1s;
+}
+
+.btn:hover {
+  color: #abb2bf;
+  background-color: #282c34;
+}
+
+.btn-inversed {
+  color: #abb2bf;
+  background-color: #282c34;
+  border: 2px solid #abb2bf;
+}
+
+.btn-inversed:hover {
+  color: #282c34;
+  background-color: #abb2bf;
+}
+
+a.btn {
+  font-weight: normal;
+  text-decoration: none;
+}
