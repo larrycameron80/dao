@@ -9,8 +9,8 @@
   justify-content: center;
 }
 
-.AppConnected-header-message {
-  width: 33%;
+.AppConnected-header-flashmessage {
+  width: 90%;
   margin-left: auto;
   margin-right: auto;
 }
