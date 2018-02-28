@@ -8,18 +8,18 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header container white">
+        <header className="App-header">
           <a href="/">
-            <img src={logo} className="App-logo" alt="logo" />
+            <img src={logo} className="App-header-logo" alt="logo" />
           </a>
-          <h1 className="App-title">Talao</h1>
+          <h1 className="App-header-title">Talao</h1>
           <p>The first Ethereum-based Talents Autonomous Organization.</p>
         </header>
-        <section className="App-content container blue">
+        <section className="App-content">
           <Web3 />
         </section>
-        <footer className="App-footer container green">
-          <p>Talao DAO prototype v0.2.1</p>
+        <footer className="App-footer">
+          <p><a href="https://talao.io">Talao</a> DAO prototype v0.2.1</p>
         </footer>
       </div>
     );
