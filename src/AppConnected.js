@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './AppConnected.css';
 import Button from './ui/button/Button';
 import EtherButton from './ethereum/EtherButton';
-//import Objection from './objection/Objection';
+import Objection from './objection/Objection';
 
 class AppConnected extends Component {
   constructor (props) {
@@ -100,7 +100,7 @@ class AppConnected extends Component {
           </div>
         </div>
         <div className="AppConnected-main container yellow">
-          {/* <Objection/> */}
+          <Objection/>
         </div>
       </div>
     );

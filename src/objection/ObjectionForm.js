@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './Objection.css';
+import '../ui/form/Form.css';
 
 class ObjectionForm extends Component {
   constructor(props) {
@@ -55,20 +56,21 @@ class ObjectionForm extends Component {
       );
     } else {
       return (
-        <form id="Objection-open-form" onSubmit={this.handleSubmit}>
-          <label>
-            Variable name:
-            <input name="variable_name" type="text" value={this.state.variable_name} onChange={this.handleInputChange} />
-          </label>
-          <label>
-            Proposed value:
-            <input name="proposed_value" type="text" value={this.state.proposed_value} onChange={this.handleInputChange} />
-          </label>
-          <label>
-            Justification:
-            <input name="currentJustification" type="text" value={this.state.currentJustification} onChange={this.handleInputChange} />
-          </label>
-          <input id="Objection-open-form-submit" type="submit" value="Open objection" />
+        <form id="Objection-open-form" className="pure-form pure-form-aligned" onSubmit={this.handleSubmit}>
+          <fieldset>
+            <div class="pure-control-group">
+              <input name="variable_name" type="text" className="pure-input-1-2" placeholder="Variable name" value={this.state.variable_name} onChange={this.handleInputChange} />
+            </div>
+            <div class="pure-control-group">
+              <input name="proposed_value" type="text" className="pure-input-1-2" placeholder="Proposed value" value={this.state.proposed_value} onChange={this.handleInputChange} />
+            </div>
+            <div class="pure-control-group">
+              <input name="currentJustification" type="text" className="pure-input-1-2" placeholder="Justification" value={this.state.currentJustification} onChange={this.handleInputChange} />
+            </div>
+            <div class="pure-control-group">
+              <input id="Objection-open-form-submit" className="pure-input-1-2 pure-button btn btn-green-inversed" type="submit" value="Open objection" />
+            </div>
+          </fieldset>
         </form>
       );
     }

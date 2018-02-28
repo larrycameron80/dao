@@ -131,13 +131,13 @@ class Objection extends Component {
         <div className="Objection-open" style={ this.state.objectionEndingDate === '0' ? {} : { display: 'none' }}>
           <h2>No current objection</h2>
           <p>Would you like to propose to change a variable value?</p>
-          <div className="container message green">
+          <div className="box green">
             <ObjectionForm/>
           </div>
         </div>
         <div className="Objection-reject" style={ this.state.objectionEndingDate === '0' ? { display: 'none' } : {}}>
           <h2>Current objection</h2>
-          <div className="container message green">
+          <div className="box green">
             <p className="big">
               Assign the value <strong>{ this.state.objectionProposedValue }</strong> to the variable <strong>{ this.state.objectionVariableName }</strong>.
             </p>
@@ -148,12 +148,12 @@ class Objection extends Component {
           <p>
             <em>{ this.state.objectionCurrentJustification }</em>
           </p>
-          <div className="container message green" style={ this.state.userHasRejected ? { display: 'none' } : {} }>
+          <div className="box green" style={ this.state.userHasRejected ? { display: 'none' } : {} }>
             <button onClick={ this.handleClickReject }>
               Reject
             </button>
           </div>
-          <div className="container message green" style={ this.state.userHasRejected ? {} : { display: 'none' }}>
+          <div className="box green" style={ this.state.userHasRejected ? {} : { display: 'none' }}>
             You have rejected this objection, but the vote is not finished yet.
           </div>
         </div>

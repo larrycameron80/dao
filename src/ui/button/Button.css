@@ -23,6 +23,16 @@
   background-color: #abb2bf;
 }
 
+.btn-green-inversed {
+  color: white;
+  background-color: #0e6c3f;
+}
+
+.btn-green-inversed:hover {
+  color: #0e6c3f;
+  background-color: white;
+}
+
 a.btn {
   font-weight: normal;
   text-decoration: none;
