@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Web3Provider } from 'react-web3';
-import App from '../App';
+import AppConnected from '../AppConnected';
 
 class Web3Unavailable extends Component {
   render() {
@@ -28,7 +28,7 @@ class Web3 extends Component {
         web3UnavailableScreen={ Web3Unavailable }
         accountUnavailableScreen={ Web3UnavailableAccount }
       >
-        <App />
+        <AppConnected />
       </Web3Provider>
     );
   }

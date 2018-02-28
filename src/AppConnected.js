@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import logo from './assets/images/Talao-logo.png';
-import './App.css';
+import './AppConnected.css';
 import TokenButton from './token/TokenButton';
-import EtherButton from './ether/EtherButton';
+import EtherButton from './ethereum/EtherButton';
 import Objection from './objection/Objection';
 
-class App extends Component {
+class AppConnected extends Component {
   constructor (props) {
     super (props);
 
@@ -59,19 +58,12 @@ class App extends Component {
   }
   render() {
     return (
-      <div className="App">
-        <header className="App-header container white">
-          <a href="/">
-            <img src={logo} className="App-logo" alt="logo" />
-          </a>
-          <h1 className="App-title">Talao</h1>
-          <p>The first Ethereum-based Talents Autonomous Organization.</p>
-        </header>
-        <div className="App-intro container blue">
-          <div className="App-intro-message">
+      <div className="AppConnected">
+        <div className="AppConnected-intro container blue">
+          <div className="AppConnected-intro-message">
             { this.state.message }
           </div>
-          <div className="App-intro-buttons">
+          <div className="AppConnected-intro-buttons">
             <div className="Token-button">
               <button>
                 My Talao tokens: { this.state.tokenBalance }
@@ -80,15 +72,12 @@ class App extends Component {
             <EtherButton/>
           </div>
         </div>
-        <div className="App-main container yellow">
+        <div className="AppConnected-main container yellow">
           <Objection/>
         </div>
-        <footer className="App-footer container green">
-          <p>Talao React.js prototype v0.2.1</p>
-        </footer>
       </div>
     );
   }
 }
 
-export default App;
+export default AppConnected;

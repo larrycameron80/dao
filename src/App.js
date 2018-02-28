@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import logo from './assets/images/Talao-logo.png';
 import './App.css';
 import Web3 from './web3/Web3';
-//import AppConnected from './AppConnected';
 
 class App extends Component {
   render() {
@@ -19,7 +18,8 @@ class App extends Component {
           <Web3 />
         </section>
         <footer className="App-footer">
-          <p><a href="https://talao.io" target="_blank" rel="noopener noreferrer">Talao</a> DAO prototype v0.2.1</p>
+          <p>Talao DAO prototype v0.2.1</p>
+          <p><a href="https://talao.io" target="_blank" rel="noopener noreferrer">Talao.io</a></p>
         </footer>
       </div>
     );
