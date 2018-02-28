@@ -19,7 +19,7 @@ class App extends Component {
           <Web3 />
         </section>
         <footer className="App-footer">
-          <p><a href="https://talao.io">Talao</a> DAO prototype v0.2.1</p>
+          <p><a href="https://talao.io" target="_blank" rel="noopener noreferrer">Talao</a> DAO prototype v0.2.1</p>
         </footer>
       </div>
     );
