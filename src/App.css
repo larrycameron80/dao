@@ -27,3 +27,14 @@
 .App-footer {
   padding: 20px;
 }
+
+.App-footer-links {
+  padding: 0;
+  text-align: center;
+}
+
+.App-footer-links li {
+  margin: 0 10px;
+  list-style-type: none;
+  display: inline-block;
+}
