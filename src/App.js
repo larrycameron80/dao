@@ -84,7 +84,7 @@ class App extends Component {
           <Objection/>
         </div>
         <footer className="App-footer container green">
-          <p>Talao React.js prototype v0.1.3</p>
+          <p>Talao React.js prototype v0.2.1</p>
         </footer>
       </div>
     );

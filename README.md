@@ -1,6 +1,6 @@
 # Talao DAO ReactJS prototype
 
-Based on http://truffleframework.com/boxes/react-auth
+Based on https://github.com/facebook/create-react-app
 
 ## Installation
 
