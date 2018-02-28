@@ -56,7 +56,7 @@ class EtherButton extends Component {
   }
   render() {
     return (
-      <Button value={ 'My Ethers: ' + this.state.userBalance } icon={ faEthereum } />
+      <Button value={ 'My Ether: ' + this.state.userBalance } icon={ faEthereum } />
     );
   }
 }

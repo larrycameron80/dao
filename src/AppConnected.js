@@ -89,7 +89,7 @@ class AppConnected extends Component {
       <div className="AppConnected">
         <div className="AppConnected-header blue">
           <div className="AppConnected-header-buttons">
-            <Button value={ 'My Talaos: ' + this.state.userBalance } />
+            <Button value={ 'My Talao: ' + this.state.userBalance } />
             <EtherButton />
           </div>
           <div>
