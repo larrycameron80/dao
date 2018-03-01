@@ -1,0 +1,19 @@
+.Token {
+  padding: 20px 0;
+}
+
+.Token p {
+  margin: 10px 0 0 0;
+}
+
+.Token-header-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Token-header-flashmessage {
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}

@@ -18,6 +18,9 @@ input[type=submit] {
 }
 
 /* Colors */
+.blue input[type="text"] {
+  color: #291b51;
+}
 .green input[type="text"] {
   color: #0e6c3f;
 }
