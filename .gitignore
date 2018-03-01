@@ -23,5 +23,5 @@ yarn-error.log*
 # Local blockchain data
 /data
 /accounts
-/networks
+/networks/*
 !/networks/ropsten.md
