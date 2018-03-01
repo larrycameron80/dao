@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './AppConnected.css';
 import Button from './ui/button/Button';
+import SendTokenForm from './token/SendTokenForm';
 import EtherButton from './ethereum/EtherButton';
 import Objection from './objection/Objection';
 
@@ -14,8 +15,13 @@ class AppConnected extends Component {
       tokenContract: tokenContractObject.at ('0xf9e0b5D9c06eCA0c12ACA32eF19B2E1655Fa4e57'),
       userAddress: null,
       userBalance: null,
-      flashMessage: null
+      flashMessage: null,
+      sendTokensTo: '',
+      sendTokensAmount: ''
     }
+
+    this.handleSendTokenInputChange = this.handleSendTokenInputChange.bind(this);
+    this.handleSendTokenSubmit = this.handleSendTokenSubmit.bind(this);
   }
   componentDidMount() {
     // Get user adress.
@@ -84,6 +90,19 @@ class AppConnected extends Component {
       }
     });
   }
+  handleSendTokenInputChange(event) {
+    const target = event.target;
+    const value = target.value;
+    const name = target.name;
+    this.setState({
+      [name]: value
+    });
+  }
+  handleSendTokenSubmit(event) {
+    event.preventDefault();
+    console.log(this.state.sendTokensTo);
+    console.log(this.state.sendTokensAmount);
+  }
   render() {
     return (
       <div className="AppConnected">
@@ -100,7 +119,8 @@ class AppConnected extends Component {
           </div>
         </div>
         <div className="AppConnected-main container yellow">
-          <Objection/>
+          <Objection />
+          <SendTokenForm onChange={ this.handleSendTokenInputChange } onSubmit={ this.handleSendTokenSubmit } to={ this.state.sendTokensTo } amount={ this.state.sendTokensAmount }/>
         </div>
       </div>
     );
