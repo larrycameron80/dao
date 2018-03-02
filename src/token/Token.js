@@ -108,9 +108,10 @@ class Token extends Component {
   handleSendSubmit(event) {
     event.preventDefault();
     const { transfer } = this.state.contract;
+    let tokens_wei = window.web3.toWei(this.state.sendAmount);
     transfer (
       this.state.sendTo,
-      this.state.sendAmount,
+      tokens_wei,
       {
         from: this.state.userAddress
       },
@@ -129,15 +130,24 @@ class Token extends Component {
     return (
       <div className="Token blue">
         <div className="Token-header-buttons">
-          <Button value={ 'My TALAOs: ' + this.state.userBalance } disabled="true" />
-          <Button value="Send TALAOs" icon={ faExchangeAlt } onClick={ this.handleSendShow } />
+          <Button
+            value={ 'My TALAOs: ' + this.state.userBalance }
+            disabled="true" />
+          <Button
+            value = "Send TALAOs"
+            icon = { faExchangeAlt }
+            onClick = { this.handleSendShow } />
           <EtherButton />
         </div>
         <div>
           <p>My address: { this.state.userAddress }</p>
         </div>
         <div style={ this.state.sendShow ? {} : { display: 'none' }}>
-          <SendTokenForm onChange={ this.handleSendInputChange } onSubmit={ this.handleSendSubmit } to={ this.state.sendTo } amount={ this.state.sendTokensAmount }/>
+          <SendTokenForm
+            onChange = { this.handleSendInputChange }
+            onSubmit = { this.handleSendSubmit }
+            to = { this.state.sendTo }
+            amount = { this.state.sendTokensAmount } />
         </div>
         <div className="Token-header-flashmessage">
           <p>{ this.state.flashMessage }</p>
