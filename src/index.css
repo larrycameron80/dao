@@ -1,13 +1,64 @@
+/* Better normalize. */
+* {
+  box-sizing: border-box;
+}
+
+/* Fonts */
 @font-face {
   font-family: 'Akkmono';
   font-style:normal;
   src: local('Akkmono'), url(./assets/fonts/akkmono.eot) format('embedded-opentype'), url(./assets/fonts/akkmono.woff) format('woff');
 }
 
+/* Body */
 body {
   margin: 0;
   padding: 0;
   font-family: 'Akkmono', sans-serif;
-  /* Raleway */
   background-color: #0e6c3f;
+}
+
+/* Sizes */
+.big {
+  font-size: 20px;
+  margin: 30px;
+}
+
+/* Links */
+a:hover {
+  text-decoration: none;
+}
+
+/* Global colors. */
+.white {
+  color: black;
+  background-color: white;
+}
+.blue {
+  color: white;
+  background-color: #291b51;
+}
+.yellow {
+  color: black;
+  background-color: #fed709;
+}
+.green {
+  color: white;
+  background-color: #0e6c3f;
+}
+
+.blue a,
+.green a {
+  color: white;
+}
+.white a,
+.yellow a {
+  color: black;
+}
+
+/* Box */
+.box {
+  width: 50%;
+  margin: 0 auto;
+  padding: 20px;
 }

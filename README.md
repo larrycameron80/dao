@@ -6,16 +6,17 @@ Based on https://github.com/facebook/create-react-app
 
     npm install
 
+The font is commercial, so not included in this repo.
+
 ## Compile and deploy the contracts
 
-Go in ~ and create a folder for Parity blockchains and one for this prototype:
+### On a local Parity blockchain
 
-    cd
-    mkdir -p parity/react-proto
+Install Parity.
 
 In a shell, open Parity with Parity UI:
 
-    parity ui --chain=dev --unsafe-expose --datadir ./parity/react-proto
+    parity ui --chain=dev --unsafe-expose --datadir ./data/parity
 
 Leave that shell open with the BC running.
 
@@ -25,7 +26,7 @@ Compile and deploy the contracts in /contracts.
 
 Update the ABIs and the adresses in:
 
-+ src/App.js
++ src/token/Token.js
 + src/objection/Objection.js
 + src/objection/ObjectionForm.js
 
