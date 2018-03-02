@@ -6,6 +6,8 @@ Based on https://github.com/facebook/create-react-app
 
     npm install
 
+The font is commercial, so not included in this repo.
+
 ## Compile and deploy the contracts
 
 ### On a local Parity blockchain
@@ -24,7 +26,7 @@ Compile and deploy the contracts in /contracts.
 
 Update the ABIs and the adresses in:
 
-+ src/App.js
++ src/token/Token.js
 + src/objection/Objection.js
 + src/objection/ObjectionForm.js
 
