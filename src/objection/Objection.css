@@ -1,21 +1,9 @@
-.big {
-  font-size: 20px;
+.Objection {
+  padding: 20px 0;
 }
 
-#Objection-open-form label {
-  display: block;
-  margin-bottom: 10px;
-}
-
-#Objection-open-form label input {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-#Objection-open-form-submit {
-  margin-top : 20px;
-  font-size: 20px;
+.Objection-rejected-list ul {
+  padding: 0;
 }
 
 .Objection-rejected-list li {

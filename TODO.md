@@ -1,3 +1,15 @@
-# Talao React.js proto TODO list
+# Talao DAO React.js proto TODO list
 
-+ Components states initialized on load are often empty in Chrome when its cache is enabled. Never happens with Chrome developer tools bar open and "Disable cache checked", never happens with Firefox.
+## Features
+
++ token: use final contract
++ ... list TODO
+
+## Tech
+
++ refactor Objection & ObjectionForm.js
++ better use react.web3 (use provided context?)
++ (use .env files to manage networks & contract addresses OR fix migrations with Truffle & Parity) AND find a way to get ABIs and addresses in React
++ use receipts to display TXNs statuses
++ Rails flash messages
++ ...
