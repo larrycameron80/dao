@@ -25,3 +25,6 @@ yarn-error.log*
 /accounts
 /networks/*
 !/networks/ropsten.md
+
+# Not free
+/src/assets/akkmono.*
