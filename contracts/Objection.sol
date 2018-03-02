@@ -1,3 +1,6 @@
+// TODO
+// Cleanup: proposed_value = '' ? (displays 0 in the proposed_value form, otherwise)
+
 pragma solidity ^0.4.19;
 
 contract Objection {

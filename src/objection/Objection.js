@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './Objection.css';
-import ObjectionForm from './ObjectionForm';
+import ObjectionOpenForm from './ObjectionOpenForm';
 import ObjectionRejectedList from './ObjectionRejectedList';
 import Button from '../ui/button/Button';
 import faBan from '@fortawesome/fontawesome-free-solid/faBan';
@@ -14,18 +14,20 @@ class Objection extends Component {
     this.state = {
       contract: contractObject.at ('0x9D8F7Fb04c740Aaa34995d0E19fcaD92A6001C5B'),
       endingDate: null,
-      variableName: null,
-      proposedValue: null,
-      currentJustification: null,
+      variableName: '',
+      proposedValue: '',
+      currentJustification: '',
       currentOwner: null,
       succeed: null,
       currentObjectionId: null,
       usersHaveRejected: null,
       userHasRejected: null,
+      objectionOpenFormSubmitted: false
     }
 
-    this.handleSubmitOpen = this.handleSubmitOpen.bind (this);
-    this.handleClickReject = this.handleClickReject.bind (this);
+    this.handleObjectionOpenFormInputChange = this.handleObjectionOpenFormInputChange.bind(this);
+    this.handleObjectionOpenFormSubmit = this.handleObjectionOpenFormSubmit.bind(this);
+    this.handleClickReject = this.handleClickReject.bind(this);
     this.state.event = this.state.contract.Succeed();
   }
   componentDidMount() {
@@ -99,7 +101,34 @@ class Objection extends Component {
       });
     });
   }
-  handleSubmitOpen() {
+  handleObjectionOpenFormInputChange(event) {
+    const target = event.target;
+    const value = target.value;
+    const name = target.name;
+    this.setState({
+      [name]: value
+    });
+  }
+  handleObjectionOpenFormSubmit(event) {
+    event.preventDefault();
+    const { openObjection } = this.state.contract;
+    openObjection (
+      this.state.currentJustification,
+      this.state.proposedValue,
+      this.state.variableName,
+      {
+        from: window.web3.eth.accounts[0],
+      },
+      (err, tx) => {
+        if (err) console.error (err);
+        else {
+          // TODO: Display & update TXN status.
+          this.setState({
+            objectionOpenFormSubmitted: true
+          });
+        }
+      }
+    );
     const { ending_date } = this.state.contract;
     ending_date ((err, ending_date) => {
       if (err) console.error ('An error occured:', err);
@@ -131,7 +160,14 @@ class Objection extends Component {
           <h2>No current objection</h2>
           <p>Would you like to propose to change a variable value?</p>
           <div className="box green">
-            <ObjectionForm/>
+            <ObjectionOpenForm
+              onChange = { this.handleObjectionOpenFormInputChange }
+              onSubmit = { this.handleObjectionOpenFormSubmit }
+              variableName = { this.state.variableName }
+              proposedValue = { this.state.proposedValue }
+              currentJustification = { this.state.currentJustification }
+              objectionOpenFormSubmitted = { this.state.objectionOpenFormSubmitted }
+            />
           </div>
         </div>
         <div className="Objection-reject" style={ this.state.endingDate === '0' ? { display: 'none' } : {}}>
