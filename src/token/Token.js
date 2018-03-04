@@ -13,6 +13,8 @@ class Token extends Component {
 
     this.state = {
       contract: contractObject.at (process.env.REACT_APP_TOKEN_ADDRESS),
+      tokenName: null,
+      tokenSymbol: null,
       userAddress: null,
       userBalance: null,
       flashMessage: null,
@@ -33,6 +35,30 @@ class Token extends Component {
         this.setState({
           userAddress: addresses[0]
         });
+        // Get token name.
+        const { name } = this.state.contract;
+        name (
+          (err, name) => {
+            if (err) console.error (err);
+            else {
+              this.setState({
+                tokenName: name
+              });
+            }
+          }
+        );
+        // Get token symbol.
+        const { symbol } = this.state.contract;
+        symbol (
+          (err, symbol) => {
+            if (err) console.error (err);
+            else {
+              this.setState({
+                tokenSymbol: symbol
+              });
+            }
+          }
+        );
         // Get user balance (token).
         const { balanceOf } = this.state.contract;
         balanceOf (
@@ -131,10 +157,10 @@ class Token extends Component {
       <div className="Token blue">
         <div className="Token-header-buttons">
           <Button
-            value={ 'My TALAOs: ' + this.state.userBalance }
-            disabled="true" />
+            value={ 'My ' + this.state.tokenSymbol + 's: ' + this.state.userBalance }
+            disabled = "true" />
           <Button
-            value = "Send TALAOs"
+            value = { 'Send ' + this.state.tokenSymbol + 's' }
             icon = { faExchangeAlt }
             onClick = { this.handleSendShow } />
           <EtherButton />
@@ -147,7 +173,8 @@ class Token extends Component {
             onChange = { this.handleSendInputChange }
             onSubmit = { this.handleSendSubmit }
             to = { this.state.sendTo }
-            amount = { this.state.sendTokensAmount } />
+            amount = { this.state.sendTokensAmount }
+            tokenSymbol = { this.state.tokenSymbol } />
         </div>
         <div className="Token-header-flashmessage">
           <p>{ this.state.flashMessage }</p>

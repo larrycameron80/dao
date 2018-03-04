@@ -2,7 +2,7 @@
 
 ## Bugs
 
-+ Objection events are not properly fetched on Ropsten (just 1 is displayed)
++ Objections do not seem to end at expiration
 + Firefox / Ubuntu: when you send tokens, the txn hash displays but it should be replaced by the event message when the block is mined (works fine under Chrome)
 + ...
 
