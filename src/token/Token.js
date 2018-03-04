@@ -3,6 +3,7 @@ import './Token.css';
 import Button from '../ui/button/Button';
 import SendTokenForm from './SendTokenForm';
 import faExchangeAlt from '@fortawesome/fontawesome-free-solid/faExchangeAlt';
+import QrCode from 'qrcode.react';
 import EtherButton from '../ethereum/EtherButton';
 
 class Token extends Component {
@@ -20,12 +21,14 @@ class Token extends Component {
       flashMessage: null,
       sendShow: false,
       sendTo: '',
-      sendAmount: ''
+      sendAmount: '',
+      showQrCode: false
     }
 
     this.handleSendShow = this.handleSendShow.bind(this);
     this.handleSendInputChange = this.handleSendInputChange.bind(this);
     this.handleSendSubmit = this.handleSendSubmit.bind(this);
+    this.handleQrCodeShowClick = this.handleQrCodeShowClick.bind(this);
   }
   componentDidMount() {
     // Get user adress.
@@ -152,6 +155,11 @@ class Token extends Component {
       }
     );
   }
+  handleQrCodeShowClick() {
+    this.setState({
+      showQrCode: this.state.showQrCode ? false : true
+    });
+  }
   render() {
     return (
       <div className="Token blue">
@@ -167,6 +175,11 @@ class Token extends Component {
         </div>
         <div>
           <p>My address: { this.state.userAddress }</p>
+          <p className="Token-qr-code-show" onClick = { this.handleQrCodeShowClick }>Show { this.state.tokenSymbol }'s QR code</p>
+        </div>
+        <div className = "Token-qr-code" style={ this.state.showQrCode ? {} : { display: 'none' }}>
+          <p>Display this on your desktop. On your mobile, open Cipher Browser, go to your account details, click <em>ADD TOKENS</em> and scan this QR code.</p>
+          <QrCode value = { process.env.REACT_APP_TOKEN_ADDRESS } />
         </div>
         <div style={ this.state.sendShow ? {} : { display: 'none' }}>
           <SendTokenForm
