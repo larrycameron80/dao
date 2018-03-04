@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './Objection.css';
-import ObjectionForm from './ObjectionForm';
+import ObjectionOpenForm from './ObjectionOpenForm';
 import ObjectionRejectedList from './ObjectionRejectedList';
 import Button from '../ui/button/Button';
 import faBan from '@fortawesome/fontawesome-free-solid/faBan';
@@ -9,23 +9,25 @@ class Objection extends Component {
   constructor (props) {
     super (props);
 
-    const contractObject = window.web3.eth.contract ([{"constant":true,"inputs":[],"name":"currentJustification","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"names","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"reject","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"forceEnd","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"proposed_value","outputs":[{"name":"","type":"int256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"ending_date","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"currentObjectionId","outputs":[{"name":"","type":"int256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"currentOwner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"currentObjection","outputs":[{"name":"","type":"int256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"variable_name","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"endObjection","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"bytes32"}],"name":"values","outputs":[{"name":"value","type":"int256"},{"name":"used","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"justification","type":"string"},{"name":"value","type":"int256"},{"name":"variable","type":"bytes32"}],"name":"openObjection","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[],"name":"Fail","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"varname","type":"bytes32"},{"indexed":false,"name":"value","type":"int256"}],"name":"Succeed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"objection_id","type":"int256"},{"indexed":false,"name":"user","type":"address"}],"name":"UserHasRejected","type":"event"}]);
+    const contractObject = window.web3.eth.contract (JSON.parse(process.env.REACT_APP_OBJECTION_ABI));
 
     this.state = {
-      contract: contractObject.at ('0x9fbcdbeed80a3ca6c3b0fcee6f751b95c99d71b4'),
+      contract: contractObject.at (process.env.REACT_APP_OBJECTION_ADDRESS),
       endingDate: null,
-      variableName: null,
-      proposedValue: null,
-      currentJustification: null,
+      variableName: '',
+      proposedValue: '',
+      currentJustification: '',
       currentOwner: null,
       succeed: null,
       currentObjectionId: null,
       usersHaveRejected: null,
       userHasRejected: null,
+      objectionOpenFormSubmitted: false
     }
 
-    this.handleSubmitOpen = this.handleSubmitOpen.bind (this);
-    this.handleClickReject = this.handleClickReject.bind (this);
+    this.handleObjectionOpenFormInputChange = this.handleObjectionOpenFormInputChange.bind(this);
+    this.handleObjectionOpenFormSubmit = this.handleObjectionOpenFormSubmit.bind(this);
+    this.handleClickReject = this.handleClickReject.bind(this);
     this.state.event = this.state.contract.Succeed();
   }
   componentDidMount() {
@@ -99,7 +101,34 @@ class Objection extends Component {
       });
     });
   }
-  handleSubmitOpen() {
+  handleObjectionOpenFormInputChange(event) {
+    const target = event.target;
+    const value = target.value;
+    const name = target.name;
+    this.setState({
+      [name]: value
+    });
+  }
+  handleObjectionOpenFormSubmit(event) {
+    event.preventDefault();
+    const { openObjection } = this.state.contract;
+    openObjection (
+      this.state.currentJustification,
+      this.state.proposedValue,
+      this.state.variableName,
+      {
+        from: window.web3.eth.accounts[0],
+      },
+      (err, tx) => {
+        if (err) console.error (err);
+        else {
+          // TODO: Display & update TXN status.
+          this.setState({
+            objectionOpenFormSubmitted: true
+          });
+        }
+      }
+    );
     const { ending_date } = this.state.contract;
     ending_date ((err, ending_date) => {
       if (err) console.error ('An error occured:', err);
@@ -131,7 +160,14 @@ class Objection extends Component {
           <h2>No current objection</h2>
           <p>Would you like to propose to change a variable value?</p>
           <div className="box green">
-            <ObjectionForm/>
+            <ObjectionOpenForm
+              onChange = { this.handleObjectionOpenFormInputChange }
+              onSubmit = { this.handleObjectionOpenFormSubmit }
+              variableName = { this.state.variableName }
+              proposedValue = { this.state.proposedValue }
+              currentJustification = { this.state.currentJustification }
+              objectionOpenFormSubmitted = { this.state.objectionOpenFormSubmitted }
+            />
           </div>
         </div>
         <div className="Objection-reject" style={ this.state.endingDate === '0' ? { display: 'none' } : {}}>

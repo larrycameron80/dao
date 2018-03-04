@@ -9,10 +9,12 @@ class Token extends Component {
   constructor (props) {
     super (props);
 
-    const contractObject = window.web3.eth.contract ([{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_value","type":"uint256"}],"name":"burn","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"sellPrice","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"target","type":"address"},{"name":"mintedAmount","type":"uint256"}],"name":"mintToken","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_value","type":"uint256"}],"name":"burnFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"buyPrice","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"unit","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"buy","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"newSellPrice","type":"uint256"},{"name":"newBuyPrice","type":"uint256"},{"name":"newUnit","type":"uint256"}],"name":"setPrices","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"frozenAccount","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"},{"name":"_extraData","type":"bytes"}],"name":"approveAndCall","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"amount","type":"uint256"}],"name":"sell","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"target","type":"address"},{"name":"freeze","type":"bool"}],"name":"freezeAccount","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[{"name":"initialSupply","type":"uint256"},{"name":"tokenName","type":"string"},{"name":"tokenSymbol","type":"string"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"target","type":"address"},{"indexed":false,"name":"frozen","type":"bool"}],"name":"FrozenFunds","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Burn","type":"event"}]);
+    const contractObject = window.web3.eth.contract (JSON.parse(process.env.REACT_APP_TOKEN_ABI));
 
     this.state = {
-      contract: contractObject.at ('0xf9e0b5D9c06eCA0c12ACA32eF19B2E1655Fa4e57'),
+      contract: contractObject.at (process.env.REACT_APP_TOKEN_ADDRESS),
+      tokenName: null,
+      tokenSymbol: null,
       userAddress: null,
       userBalance: null,
       flashMessage: null,
@@ -33,6 +35,30 @@ class Token extends Component {
         this.setState({
           userAddress: addresses[0]
         });
+        // Get token name.
+        const { name } = this.state.contract;
+        name (
+          (err, name) => {
+            if (err) console.error (err);
+            else {
+              this.setState({
+                tokenName: name
+              });
+            }
+          }
+        );
+        // Get token symbol.
+        const { symbol } = this.state.contract;
+        symbol (
+          (err, symbol) => {
+            if (err) console.error (err);
+            else {
+              this.setState({
+                tokenSymbol: symbol
+              });
+            }
+          }
+        );
         // Get user balance (token).
         const { balanceOf } = this.state.contract;
         balanceOf (
@@ -108,9 +134,10 @@ class Token extends Component {
   handleSendSubmit(event) {
     event.preventDefault();
     const { transfer } = this.state.contract;
+    let tokens_wei = window.web3.toWei(this.state.sendAmount);
     transfer (
       this.state.sendTo,
-      this.state.sendAmount,
+      tokens_wei,
       {
         from: this.state.userAddress
       },
@@ -119,7 +146,7 @@ class Token extends Component {
         else {
           this.setState({
             sendShow: false,
-            flashMessage: 'Tokens sent.'
+            flashMessage: 'Send tokens: transaction submitted, hash:' + tx
           });
         }
       }
@@ -129,15 +156,25 @@ class Token extends Component {
     return (
       <div className="Token blue">
         <div className="Token-header-buttons">
-          <Button value={ 'My TALAOs: ' + this.state.userBalance } disabled="true" />
-          <Button value="Send TALAOs" icon={ faExchangeAlt } onClick={ this.handleSendShow } />
+          <Button
+            value={ 'My ' + this.state.tokenSymbol + 's: ' + this.state.userBalance }
+            disabled = "true" />
+          <Button
+            value = { 'Send ' + this.state.tokenSymbol + 's' }
+            icon = { faExchangeAlt }
+            onClick = { this.handleSendShow } />
           <EtherButton />
         </div>
         <div>
           <p>My address: { this.state.userAddress }</p>
         </div>
         <div style={ this.state.sendShow ? {} : { display: 'none' }}>
-          <SendTokenForm onChange={ this.handleSendInputChange } onSubmit={ this.handleSendSubmit } to={ this.state.sendTo } amount={ this.state.sendTokensAmount }/>
+          <SendTokenForm
+            onChange = { this.handleSendInputChange }
+            onSubmit = { this.handleSendSubmit }
+            to = { this.state.sendTo }
+            amount = { this.state.sendTokensAmount }
+            tokenSymbol = { this.state.tokenSymbol } />
         </div>
         <div className="Token-header-flashmessage">
           <p>{ this.state.flashMessage }</p>
