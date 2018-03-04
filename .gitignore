@@ -12,7 +12,9 @@
 # misc
 .DS_Store
 .env.local
+.env.development.backup
 .env.development.local
+.env.development.local.backup
 .env.test.local
 .env.production.local
 
