@@ -26,9 +26,8 @@ Compile and deploy the contracts in /contracts.
 
 Update the ABIs and the adresses in:
 
-+ src/token/Token.js
-+ src/objection/Objection.js
-+ src/objection/ObjectionForm.js
++ /.env.development.local for your local BC (not commited)
++ /.env.development for Ropsten (commited but please do not change, if you want to test on Ropsten with new contracts instances, please use .env.development.local)
 
 ## Launch the app:
 

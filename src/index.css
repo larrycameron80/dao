@@ -3,13 +3,6 @@
   box-sizing: border-box;
 }
 
-/* Fonts */
-@font-face {
-  font-family: 'Akkmono';
-  font-style:normal;
-  src: local('Akkmono'), url(./assets/fonts/akkmono.eot) format('embedded-opentype'), url(./assets/fonts/akkmono.woff) format('woff');
-}
-
 /* Body */
 body {
   margin: 0;
