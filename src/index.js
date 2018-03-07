@@ -7,6 +7,7 @@ import registerServiceWorker from './registerServiceWorker';
 if (process.env.REACT_APP_FONT === '1') {
   require('./assets/fonts/akkmono.eot');
   require('./assets/fonts/akkmono.woff');
+  require('./assets/fonts/akkmono.ttf');
   require('./fonts.css');
 }
 
