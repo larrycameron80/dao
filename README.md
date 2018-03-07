@@ -9,7 +9,7 @@ Based on https://github.com/facebook/create-react-app
     npm install
     npm run start
 
-Your are now running a local dev server of Talao DAO, connected to the Ropsten network.
+You are now running a local dev server of Talao DAO, connected to the Ropsten network.
 If it didn't open a browser tab automatically, go to : http://localhost:3000
 
 ## Using a local dev blockchain
