@@ -31,3 +31,8 @@ In a shell, open Parity with Parity UI:
 Leave that shell open with the BC running. Go to Parity UI, create a few accounts including an "Admin" account who will be the Smart Contracts owner. Compile and deploy the contracts in /contracts.
 
 Update the adresses and if necessary the ABIs in /.env.development.local
+
+## Contributing
+
++ See [CONTRIBUTING.md](https://github.com/TalaoDAO/dao/blob/dev/README.md)
++ See [TODO.md](https://github.com/TalaoDAO/dao/blob/dev/TODO.md)
