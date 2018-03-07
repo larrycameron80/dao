@@ -1,40 +1,33 @@
-# Talao DAO ReactJS prototype
+# Talao DAO prototype
 
 Based on https://github.com/facebook/create-react-app
 
-## Installation
+## tl;dr
 
+    git clone git@github.com:TalaoDAO/dao.git
+    cd dao
     npm install
+    npm run start
 
-The font is commercial, so not included in this repo.
+Your are now running a local dev server of Talao DAO, connected to the Ropsten network.
+If it didn't open a browser tab automatically, go to : http://localhost:3000
 
-## Compile and deploy the contracts
+## Using a local dev blockchain
 
-### On a local Parity blockchain
+    cp .env.development .env.development.local
 
-Install Parity.
+Edit .env.development.local
++ Change the contracts addresses for the ones you have deployed on your local dev BC
++ Change ABIs too if you are developing on the Smart contracts
+
+### Parity local dev blockchain
+
+We use Parity local dev blockchain a lot, because it's persistent nature and tools are real usefull to us. If you want to use it as well:
 
 In a shell, open Parity with Parity UI:
 
     parity ui --chain=dev --unsafe-expose --datadir ./data/parity
 
-Leave that shell open with the BC running.
+Leave that shell open with the BC running. Go to Parity UI, create a few accounts including an "Admin" account who will be the Smart Contracts owner. Compile and deploy the contracts in /contracts.
 
-Go to Parity UI, create a few accounts including an "Admin" account who will be the Smart Contracts owner.
-
-Compile and deploy the contracts in /contracts.
-
-Update the ABIs and the adresses in:
-
-+ /.env.development.local for your local BC (not commited)
-+ /.env.development for Ropsten (commited but please do not change, if you want to test on Ropsten with new contracts instances, please use .env.development.local)
-
-## Launch the app:
-
-In another shell:
-
-    cd
-    cd react-proto
-    npm run start
-
-The app is on http://localhost:3000
+Update the adresses and if necessary the ABIs in /.env.development.local

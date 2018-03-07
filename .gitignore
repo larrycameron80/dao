@@ -32,3 +32,4 @@ yarn-error.log*
 
 # Not free
 /src/assets/fonts/akkmono.*
+/src/assets/fonts/akkmonoe.*
