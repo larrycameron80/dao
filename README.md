@@ -34,5 +34,5 @@ Update the adresses and if necessary the ABIs in /.env.development.local
 
 ## Contributing
 
-+ See [CONTRIBUTING.md](https://github.com/TalaoDAO/dao/blob/dev/README.md)
++ See [CONTRIBUTING.md](https://github.com/TalaoDAO/dao/blob/dev/CONTRIBUTING.md)
 + See [TODO.md](https://github.com/TalaoDAO/dao/blob/dev/TODO.md)
