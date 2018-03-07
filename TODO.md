@@ -3,16 +3,17 @@
 ## Bugs
 
 + Objections do not seem to end at expiration
-+ Firefox / Ubuntu: when you send tokens, the txn hash displays but it should be replaced by the event message when the block is mined (works fine under Chrome)
 + ...
 
 ## Features
 
 + token: use final contract
++ use Truffle to compile and deploy contracts (fix migrations problems with Parity first, especially gas costs fro contracts deploys, then integrate with React to get contract adresses and ABIs)
++ better use react.web3 (use provided context?)
 + ...
 
-## Tech
+## Questions
 
-+ better use react.web3 (use provided context?)
-+ Rails flash messages
++ Do we need Redux ?
++ Do we need Router ?
 + ...
