@@ -9,3 +9,13 @@
 .Objection-rejected-list li {
   list-style-type: none;
 }
+
+.Objection-countdown {
+  font-style: italic;
+  font-size: 12px;
+}
+
+.Objection-finished {
+  font-style: italic;
+  font-size: 12px;
+}

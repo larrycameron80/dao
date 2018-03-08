@@ -4,6 +4,7 @@ import ObjectionOpenForm from './ObjectionOpenForm';
 import ObjectionRejectedList from './ObjectionRejectedList';
 import Button from '../ui/button/Button';
 import faBan from '@fortawesome/fontawesome-free-solid/faBan';
+import Countdown from 'react-countdown-now';
 
 class Objection extends Component {
   constructor (props) {
@@ -183,6 +184,13 @@ class Objection extends Component {
             </div>
             <div style={ this.state.userHasRejected ? {} : { display: 'none' }}>
               <Button value="You have rejected this objection." icon={ faBan } disabled="true" />
+            </div>
+            <div className="Objection-countdown" style={ this.state.endingDate > Date.now().toString() ? {} : { display: 'none' } }>
+              <p>This objection ends in:</p>
+              <Countdown date={ this.state.endingDate * 1000 } />
+            </div>
+            <div className="Objection-finished" style={ this.state.endingDate > Date.now().toString() ? { display: 'none' } : {} }>
+              <p>This objection is over.</p>
             </div>
           </div>
         </div>
