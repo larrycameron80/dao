@@ -26,17 +26,47 @@ contract Objection {
     mapping(bytes32 => Values) public values;
     bytes32[] public names;
 
+    function names_length() public view returns (uint) {
+        return names.length;
+    }
+
+    function get_value(bytes32 varname) public view returns (int) {
+        return values[varname].value;
+    }
+
     function Objection() public {
         owner = msg.sender;
         names.push('objection_duration');
         names.push('objection_threshold');
+        names.push('profile_price');
         values['objection_duration'] = Values({value: 2 days, used:true});
         values['objection_threshold'] = Values({value: 2, used:true}); // must at leat have 2 rejections
+        values['profile_price'] = Values({value: 222, used:true});
     }
 
     event Fail();
     event Succeed(bytes32 varname, int value);
     event UserHasRejected(int indexed objection_id, address user);
+
+    function get_variable_name() public view returns (string) {
+        return bytes32ToStr(variable_name);
+    }
+
+    function get_proposed_value() public view returns (int) {
+        return proposed_value;
+    }
+
+    function bytes32ToStr(bytes32 _bytes32) internal pure returns (string){
+        // string memory str = string(_bytes32);
+        // TypeError: Explicit type conversion not allowed from "bytes32" to "string storage pointer"
+        // thus we should fist convert bytes32 to bytes (to dynamically-sized byte array)
+
+        bytes memory bytesArray = new bytes(32);
+        for (uint256 i; i < 32; i++) {
+            bytesArray[i] = _bytes32[i];
+            }
+        return string(bytesArray);
+    }
 
     function openObjection(string justification, int value, bytes32 variable) public {
         assert (status != State.waiting);
@@ -66,7 +96,7 @@ contract Objection {
     function endObjection() public onlyOwner returns (bool) {
         if (status == State.waiting) {
           if (hasRejected.length >= uint(values['objection_threshold'].value)) {
-            Fail();
+            emit Fail();
             cleanup();
             return true;
           }
@@ -74,7 +104,7 @@ contract Objection {
             if (!values[variable_name].used)
               names.push(variable_name);
             values[variable_name] = Values({value:proposed_value, used:true});
-            Succeed(variable_name, proposed_value);
+            emit Succeed(variable_name, proposed_value);
             cleanup();
             return true;
           }
