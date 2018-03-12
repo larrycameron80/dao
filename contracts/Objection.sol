@@ -4,7 +4,7 @@
 pragma solidity ^0.4.19;
 
 /* Objection : as a user I want to be able to change the value of the DAO parameters
-  An objection is a request from an user to change a parameter of the DAO. If no body 
+  An objection is a request from an user to change a parameter of the DAO. If no body
   objects for a certain time, then, the value is changed.
 
   A list of the parameters names and values is stored in the contract
@@ -45,17 +45,17 @@ contract Objection {
     /* Constructor : initialize 3 default variables */
     function Objection() public {
         owner = msg.sender;
-        names.push('objection_duration');
-        names.push('objection_threshold');
-        names.push('profile_price');
-        values['objection_duration'] = Values({value: 2 days, used:true});
-        values['objection_threshold'] = Values({value: 2, used:true}); // must at leat have 2 rejections
-        values['profile_price'] = Values({value: 222, used:true});
+        names.push("objection_duration");
+        names.push("objection_threshold");
+        names.push("profile_price");
+        values["objection_duration"] = Values({value: 2 days, used:true});
+        values["objection_threshold"] = Values({value: 2, used:true}); // must at leat have 2 rejections
+        values["profile_price"] = Values({value: 222, used:true});
     }
 
     // Public functions
 
-    // Getter : number of currently stored variables 
+    // Getter : number of currently stored variables
     function names_length() public view returns (uint) {
         return names.length;
     }
@@ -77,9 +77,9 @@ contract Objection {
 
     // Getter : current objection ID
     function currentObjection() public view returns (int) {
-      if (ending_date > 0) {
-        return currentObjectionId;
-      }
+        if (ending_date > 0) {
+            return currentObjectionId;
+        }
     }
 
     // Launch a new Objection. Ask for a parameter change of value.
@@ -90,15 +90,15 @@ contract Objection {
         status = State.waiting;
         variable_name = variable;
         proposed_value = value;
-        ending_date = now + uint(values['objection_duration'].value);
+        ending_date = now + uint(values["objection_duration"].value);
         currentObjectionId++;
     }
 
     // Vote against the current objection
     function reject() public {
         if (status == State.waiting && (now < ending_date)) {
-          hasRejected.push(msg.sender);
-          emit UserHasRejected(currentObjectionId, msg.sender);
+            hasRejected.push(msg.sender);
+            emit UserHasRejected(currentObjectionId, msg.sender);
         }
     }
 
@@ -107,19 +107,19 @@ contract Objection {
     // return true if an objection is ended and an event fired. False in other cases
     function endObjection() public returns (bool) {
         if (status == State.waiting) {
-          if (hasRejected.length >= uint(values['objection_threshold'].value)) {
-            emit Fail();
-            cleanup();
-            return true;
-          }
-          if (now >= ending_date) {
-            if (!values[variable_name].used)
-              names.push(variable_name);
-            values[variable_name] = Values({value:proposed_value, used:true});
-            emit Succeed(variable_name, proposed_value);
-            cleanup();
-            return true;
-          }
+            if (hasRejected.length >= uint(values["objection_threshold"].value)) {
+                emit Fail();
+                cleanup();
+                return true;
+            }
+            if (now >= ending_date) {
+                if (!values[variable_name].used)
+                    names.push(variable_name);
+                values[variable_name] = Values({value:proposed_value, used:true});
+                emit Succeed(variable_name, proposed_value);
+                cleanup();
+                return true;
+            }
         }
         return false;
     }
@@ -130,7 +130,7 @@ contract Objection {
         endObjection();
     }
 
-    // Internal functions 
+    // Internal functions
 
     // Helper function to handle string / bytes32 conversion
     function bytes32ToStr(bytes32 _bytes32) internal pure returns (string){
@@ -151,10 +151,10 @@ contract Objection {
     function cleanup() private {
         status = State.unknown;
         delete hasRejected;
-        currentJustification = '';
+        currentJustification = "";
         proposed_value = 0;
         ending_date = 0;
-        variable_name = '';
+        variable_name = "";
     }
 
 }
