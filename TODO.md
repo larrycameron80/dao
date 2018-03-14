@@ -1,19 +1,16 @@
 # Talao DAO React.js proto TODO list
 
-## Bugs
-
-+ Objections do not seem to end at expiration
-+ ...
-
-## Features
+## Interface
 
 + token: use final contract
-+ use Truffle to compile and deploy contracts (fix migrations problems with Parity first, especially gas costs fro contracts deploys, then integrate with React to get contract adresses and ABIs)
-+ better use react.web3 (use provided context?)
++ do we need Redux ?
++ do we need Router ?
 + ...
 
-## Questions
+## Contracts
 
-+ Do we need Redux ?
-+ Do we need Router ?
++ token: use final contract
++ use Truffle for SM tests
++ refund the user who called the endObjection function
++ objection: switch to the more complex objection2 SMs
 + ...

@@ -28,8 +28,8 @@ class Web3 extends Component {
   render() {
     return (
       <Web3Provider
-        web3UnavailableScreen={ Web3Unavailable }
-        accountUnavailableScreen={ Web3UnavailableAccount }
+        web3UnavailableScreen = { Web3Unavailable }
+        accountUnavailableScreen = { Web3UnavailableAccount }
       >
         <AppConnected />
       </Web3Provider>

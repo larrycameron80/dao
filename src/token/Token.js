@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import './Token.css';
 import Button from '../ui/button/Button';
 import SendTokenForm from './SendTokenForm';
@@ -16,7 +17,6 @@ class Token extends Component {
       contract: contractObject.at (process.env.REACT_APP_TOKEN_ADDRESS),
       tokenName: null,
       tokenSymbol: null,
-      userAddress: null,
       userBalance: null,
       flashMessage: null,
       sendShow: false,
@@ -31,95 +31,86 @@ class Token extends Component {
     this.handleQrCodeShowClick = this.handleQrCodeShowClick.bind(this);
   }
   componentDidMount() {
-    // Get user adress.
-    window.web3.eth.getAccounts((err, addresses) => {
-      if (err) console.error (err);
-      else {
-        this.setState({
-          userAddress: addresses[0]
-        });
-        // Get token name.
-        const { name } = this.state.contract;
-        name (
-          (err, name) => {
-            if (err) console.error (err);
-            else {
-              this.setState({
-                tokenName: name
-              });
-            }
-          }
-        );
-        // Get token symbol.
-        const { symbol } = this.state.contract;
-        symbol (
-          (err, symbol) => {
-            if (err) console.error (err);
-            else {
-              this.setState({
-                tokenSymbol: symbol
-              });
-            }
-          }
-        );
-        // Get user balance (token).
-        const { balanceOf } = this.state.contract;
-        balanceOf (
-          this.state.userAddress,
-          (err, balance) => {
-            if (err) console.error (err);
-            else {
-              let tokens = (window.web3.fromWei(balance.toString(), 'ether'));
-              tokens = parseFloat(tokens).toFixed(2);
-              this.setState({
-                userBalance: tokens
-              });
-            }
-          }
-        );
-        // Watch Transfer events (token).
-        // Note: we could set 2 watches with filters on the user address (from & to) instead of 1 watch on all Transfer events.
-        this.state.contract.Transfer().watch (
-          (err, event) => {
-            if (err) console.error (err);
-            else {
-              // The user is involved in this event.
-              if (event['args']['to'] === this.state.userAddress || event['args']['from'] === this.state.userAddress) {
-                // Get his new balance.
-                balanceOf (
-                  this.state.userAddress,
-                  (err, balance) => {
-                    if (err) console.error (err);
-                    else {
-                      let tokens = (window.web3.fromWei(balance.toString(), 'ether'));
-                      tokens = parseFloat(tokens).toFixed(2);
-                      this.setState({
-                        userBalance: tokens
-                      });
-                    }
-                  }
-                );
-                // How many tokens?
-                let tokens_wei = event['args']['value'].toString();
-                let tokens = window.web3.fromWei(tokens_wei);
-                // Did the user receive or send the tokens ?
-                let transferContent = (event['args']['to'] === this.state.userAddress) ? event['args']['from'] + ' sent you ' + tokens + ' tokens' : 'You sent ' + tokens + ' tokens to ' + event['args']['to'];
-                // Date of the transaction.
-                window.web3.eth.getBlock(event['blockNumber'], (err, block) => {
-                  let transferTimestamp = block.timestamp;
-                  let transferDate = new Date(transferTimestamp * 1000);
-                  let transferDateUtc = transferDate.toUTCString();
-                  // Send flash message.
-                  this.setState({
-                    flashMessage: 'Last event on ' + transferDateUtc + ': ' + transferContent
-                  });
-                });
-              }
-            }
-          }
-        );
+    // Get token name.
+    const { name } = this.state.contract;
+    name (
+      (err, name) => {
+        if (err) console.error (err);
+        else {
+          this.setState({
+            tokenName: name
+          });
+        }
       }
-    });
+    );
+    // Get token symbol.
+    const { symbol } = this.state.contract;
+    symbol (
+      (err, symbol) => {
+        if (err) console.error (err);
+        else {
+          this.setState({
+            tokenSymbol: symbol
+          });
+        }
+      }
+    );
+    // Get user balance (token).
+    const { balanceOf } = this.state.contract;
+    balanceOf (
+      this.context.web3.selectedAccount,
+      (err, balance) => {
+        if (err) console.error (err);
+        else {
+          let tokens = (window.web3.fromWei(balance.toString(), 'ether'));
+          tokens = parseFloat(tokens).toFixed(2);
+          this.setState({
+            userBalance: tokens
+          });
+        }
+      }
+    );
+    // Watch Transfer events (token).
+    // Note: we could set 2 watches with filters on the user address (from & to) instead of 1 watch on all Transfer events.
+    this.state.contract.Transfer().watch (
+      (err, event) => {
+        if (err) console.error (err);
+        else {
+          // The user is involved in this event.
+          if (event['args']['to'] === this.context.web3.selectedAccount || event['args']['from'] === this.context.web3.selectedAccount) {
+            // Get his new balance.
+            balanceOf (
+              this.context.web3.selectedAccount,
+              (err, balance) => {
+                if (err) console.error (err);
+                else {
+                  let tokens = (window.web3.fromWei(balance.toString(), 'ether'));
+                  tokens = parseFloat(tokens).toFixed(2);
+                  this.setState({
+                    userBalance: tokens
+                  });
+                }
+              }
+            );
+            // How many tokens?
+            let tokens_wei = event['args']['value'].toString();
+            let tokens = window.web3.fromWei(tokens_wei);
+            // Did the user receive or send the tokens ?
+            let transferContent = (event['args']['to'] === this.context.web3.selectedAccount) ? event['args']['from'] + ' sent you ' + tokens + ' tokens' : 'You sent ' + tokens + ' tokens to ' + event['args']['to'];
+            // Date of the transaction.
+            window.web3.eth.getBlock(event['blockNumber'], (err, block) => {
+              let transferTimestamp = block.timestamp;
+              let transferDate = new Date(transferTimestamp * 1000);
+              let transferDateUtc = transferDate.toUTCString();
+              // Send flash message.
+              this.setState({
+                flashMessage: 'Last event on ' + transferDateUtc + ': ' + transferContent
+              });
+            });
+          }
+        }
+      }
+    );
   }
   handleSendShow() {
     this.setState({
@@ -142,7 +133,7 @@ class Token extends Component {
       this.state.sendTo,
       tokens_wei,
       {
-        from: this.state.userAddress
+        from: this.context.web3.selectedAccount
       },
       (err, tx) => {
         if (err) console.error (err);
@@ -174,7 +165,7 @@ class Token extends Component {
           <EtherButton />
         </div>
         <div>
-          <p>My address: { this.state.userAddress }</p>
+          <p>My address: { this.context.web3.selectedAccount }</p>
           <p className="Token-qr-code-show" onClick = { this.handleQrCodeShowClick }>Show { this.state.tokenSymbol }'s QR code</p>
         </div>
         <div className = "Token-qr-code" style={ this.state.showQrCode ? {} : { display: 'none' }}>
@@ -195,6 +186,10 @@ class Token extends Component {
       </div>
     );
   }
+}
+
+Token.contextTypes = {
+  web3: PropTypes.object
 }
 
 export default Token;

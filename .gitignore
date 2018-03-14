@@ -24,11 +24,6 @@ yarn-error.log*
 
 # Local blockchain data
 /data
-/networks/*
-/networks/local/*
-!/networks/local/.gitkeep
-/networks/ropsten/*
-!/networks/ropsten/.gitkeep
 
 # Not free
 /src/assets/fonts/akkmono.*

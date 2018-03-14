@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import './Objection.css';
 import ObjectionOpenForm from './ObjectionOpenForm';
-import ObjectionRejectedList from './ObjectionRejectedList';
+import ObjectionUsersHaveRejectedList from './ObjectionUsersHaveRejectedList';
+import Table from '../ui/table/Table';
 import Button from '../ui/button/Button';
 import faBan from '@fortawesome/fontawesome-free-solid/faBan';
+import faWindowClose from '@fortawesome/fontawesome-free-solid/faWindowClose';
 import Countdown from 'react-countdown-now';
 
 class Objection extends Component {
@@ -23,15 +26,19 @@ class Objection extends Component {
       currentObjectionId: null,
       usersHaveRejected: null,
       userHasRejected: null,
-      objectionOpenFormSubmitted: false
+      objectionOpenFormSubmitted: false,
+      succeededObjections: null,
+      failedObjections: null
     }
 
     this.handleObjectionOpenFormInputChange = this.handleObjectionOpenFormInputChange.bind(this);
     this.handleObjectionOpenFormSubmit = this.handleObjectionOpenFormSubmit.bind(this);
     this.handleClickReject = this.handleClickReject.bind(this);
+    this.handleClickClose = this.handleClickClose.bind(this);
     this.state.event = this.state.contract.Succeed();
   }
   componentDidMount() {
+    // Is an objection open?
     const { ending_date } = this.state.contract;
     ending_date ((err, ending_date) => {
       if (err) console.error (err);
@@ -39,6 +46,7 @@ class Objection extends Component {
         this.setState ({
           endingDate: ending_date.toString()
         });
+        // Get the objection.
         if (ending_date > 0) {
           const { currentObjectionId } = this.state.contract;
           currentObjectionId ((err, objection_id) => {
@@ -47,6 +55,7 @@ class Objection extends Component {
               this.setState ({
                 currentObjectionId: objection_id.toString()
               });
+              // Get the events in which users rejected the objection.
               this.state.contract.UserHasRejected(
                 {objection_id: this.state.currentObjectionId},
                 {fromBlock: 0, toBlock: 'latest'}
@@ -58,8 +67,9 @@ class Objection extends Component {
                     this.setState ({
                       usersHaveRejected: rejected
                     });
+                    // Did the current user reject the objection?
                     rejected.forEach( (event) => {
-                      if (event['args']['user'] === window.web3.eth.accounts[0]) {
+                      if (event['args']['user'] === this.context.web3.selectedAccount) {
                         this.setState ({
                           userHasRejected: true
                         });
@@ -73,6 +83,7 @@ class Objection extends Component {
         }
       }
     });
+    // Get objection variable name.
     const { variable_name } = this.state.contract;
     variable_name ((err, variable_name) => {
       if (err) console.error ('An error occured:', err);
@@ -80,6 +91,7 @@ class Objection extends Component {
         variableName: window.web3.toAscii(variable_name).replace(/\u0000/g, '')
       });
     });
+    // Get objection proposed value.
     const { proposed_value } = this.state.contract;
     proposed_value ((err, proposed_value) => {
       if (err) console.error ('An error occured:', err);
@@ -87,6 +99,7 @@ class Objection extends Component {
         proposedValue: proposed_value.toString()
       });
     });
+    // Get objection justification.
     const { currentJustification } = this.state.contract;
     currentJustification ((err, currentJustification) => {
       if (err) console.error ('An error occured:', err);
@@ -94,6 +107,7 @@ class Objection extends Component {
         currentJustification: currentJustification
       });
     });
+    // Get objection creator.
     const { currentOwner } = this.state.contract;
     currentOwner ((err, currentOwner) => {
       if (err) console.error ('An error occured:', err);
@@ -101,6 +115,56 @@ class Objection extends Component {
         currentOwner: currentOwner
       });
     });
+    // Get previously succeeded objections.
+    this.state.contract.Succeed(
+      {},
+      {fromBlock: 0, toBlock: 'latest'}
+    )
+    .get (
+      (err, succeeded) => {
+        if (err) console.error (err);
+        else {
+          var succeededObjections = [];
+          succeeded.forEach( (event) => {
+            let variable_name = window.web3.toAscii(event['args']['varname']).replace(/\u0000/g, '');
+            let value = (event['args']['value']).toString();
+            let succeededObjection = {
+              variable: variable_name,
+              value: value
+            }
+            succeededObjections.push(succeededObjection);
+          });
+          this.setState ({
+            succeededObjections: succeededObjections
+          });
+        }
+      }
+    );
+    // Get previously failed objections.
+    this.state.contract.Fail(
+      {},
+      {fromBlock: 0, toBlock: 'latest'}
+    )
+    .get (
+      (err, failed) => {
+        if (err) console.error (err);
+        else {
+          var failedObjections = [];
+          failed.forEach( (event) => {
+            let variable_name = window.web3.toAscii(event['args']['varname']).replace(/\u0000/g, '');
+            let value = (event['args']['value']).toString();
+            let failedObjection = {
+              variable: variable_name,
+              value: value
+            }
+            failedObjections.push(failedObjection);
+          });
+          this.setState ({
+            failedObjections: failedObjections
+          });
+        }
+      }
+    );
   }
   handleObjectionOpenFormInputChange(event) {
     const target = event.target;
@@ -118,12 +182,11 @@ class Objection extends Component {
       this.state.proposedValue,
       this.state.variableName,
       {
-        from: window.web3.eth.accounts[0],
+        from: this.context.web3.selectedAccount,
       },
       (err, tx) => {
         if (err) console.error (err);
         else {
-          // TODO: Display & update TXN status.
           this.setState({
             objectionOpenFormSubmitted: true
           });
@@ -142,13 +205,29 @@ class Objection extends Component {
     const { reject } = this.state.contract;
     reject (
       {
-        from: window.web3.eth.accounts[0],
+        from: this.context.web3.selectedAccount,
       },
       (err, tx) => {
         if (err) console.error ('An error occured:', err);
         else {
           this.setState({
             userHasRejected: true
+          });
+        }
+      }
+    );
+  }
+  handleClickClose() {
+    const { endObjection } = this.state.contract;
+    endObjection (
+      {
+        from: this.context.web3.selectedAccount,
+      },
+      (err, tx) => {
+        if (err) console.error ('An error occured:', err);
+        else {
+          this.setState({
+            endingDate: 0
           });
         }
       }
@@ -191,13 +270,30 @@ class Objection extends Component {
             </div>
             <div className="Objection-finished" style={ this.state.endingDate > Date.now().toString() ? { display: 'none' } : {} }>
               <p>This objection is over.</p>
+              <div>
+                <Button value="Close this objection" icon={ faWindowClose } onClick={ this.handleClickClose } />
+              </div>
             </div>
           </div>
         </div>
-        <ObjectionRejectedList {...this.state } />
+        <ObjectionUsersHaveRejectedList {...this.state } />
+        <Table
+          className = "Objections-succeeded box green"
+          caption = "Previously succeeded objections"
+          rows = { this.state.succeededObjections }
+        />
+        <Table
+          className = "Objections-failed box green"
+          caption = "Previously failed objections"
+          rows = { this.state.failedObjections }
+        />
       </div>
     );
   }
+}
+
+Objection.contextTypes = {
+  web3: PropTypes.object
 }
 
 export default Objection;

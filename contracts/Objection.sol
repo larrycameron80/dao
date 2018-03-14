@@ -1,6 +1,3 @@
-// TODO
-// Cleanup: proposed_value = '' ? (displays 0 in the proposed_value form, otherwise)
-
 pragma solidity ^0.4.19;
 
 /* Objection : as a user I want to be able to change the value of the DAO parameters
@@ -14,7 +11,7 @@ contract Objection {
     // A single user has rejected the objection
     event UserHasRejected(int indexed objection_id, address user);
     // Too many users have rejected the objection : it is canceled
-    event Fail();
+    event Fail(bytes32 varname, int value);
     // The objection succeeded since to few users rejected it in the time scale
     event Succeed(bytes32 varname, int value);
 
@@ -102,26 +99,26 @@ contract Objection {
         }
     }
 
-    // Must be called repeateadly from JS from time to time like a cron
-    // to check if the current objection have expired
-    // return true if an objection is ended and an event fired. False in other cases
+    // End an objection.
     function endObjection() public returns (bool) {
-        if (status == State.waiting) {
-            if (hasRejected.length >= uint(values["objection_threshold"].value)) {
-                emit Fail();
-                cleanup();
-                return true;
-            }
-            if (now >= ending_date) {
-                if (!values[variable_name].used)
-                    names.push(variable_name);
-                values[variable_name] = Values({value:proposed_value, used:true});
-                emit Succeed(variable_name, proposed_value);
-                cleanup();
-                return true;
-            }
+      if (status == State.waiting && now >= ending_date) {
+        // Reject the objection.
+        if (hasRejected.length >= uint(values['objection_threshold'].value)) {
+          Fail(variable_name, proposed_value);
+          cleanup();
+          return true;
         }
-        return false;
+        // Accept the objection and update or set the variable.
+        else {
+          if (!values[variable_name].used)
+            names.push(variable_name);
+          values[variable_name] = Values({value:proposed_value, used:true});
+          Succeed(variable_name, proposed_value);
+          cleanup();
+          return true;
+        }
+      }
+      return false;
     }
 
     // Only owner can for ending the current objection (useful for debugging)
