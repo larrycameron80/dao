@@ -34,7 +34,7 @@ contract Objection {
         values['objection_threshold'] = Values({value: 2, used:true}); // must at leat have 2 rejections
     }
 
-    event Fail();
+    event Fail(bytes32 varname, int value);
     event Succeed(bytes32 varname, int value);
     event UserHasRejected(int indexed objection_id, address user);
 
@@ -62,24 +62,26 @@ contract Objection {
       }
     }
 
-    // return true if an objection is ended and an event fired. False in other cases
-    function endObjection() public onlyOwner returns (bool) {
-        if (status == State.waiting) {
-          if (hasRejected.length >= uint(values['objection_threshold'].value)) {
-            Fail();
-            cleanup();
-            return true;
-          }
-          if (now >= ending_date) {
-            if (!values[variable_name].used)
-              names.push(variable_name);
-            values[variable_name] = Values({value:proposed_value, used:true});
-            Succeed(variable_name, proposed_value);
-            cleanup();
-            return true;
-          }
+    // End an objection.
+    function endObjection() public returns (bool) {
+      if (status == State.waiting && now >= ending_date) {
+        // Reject the objection.
+        if (hasRejected.length >= uint(values['objection_threshold'].value)) {
+          Fail(variable_name, proposed_value);
+          cleanup();
+          return true;
         }
-        return false;
+        // Accept the objection and update or set the variable.
+        else {
+          if (!values[variable_name].used)
+            names.push(variable_name);
+          values[variable_name] = Values({value:proposed_value, used:true});
+          Succeed(variable_name, proposed_value);
+          cleanup();
+          return true;
+        }
+      }
+      return false;
     }
 
     function cleanup() private {

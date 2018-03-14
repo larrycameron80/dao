@@ -14,6 +14,8 @@ If it didn't open a browser tab automatically, go to : http://localhost:3000
 
 ## Using a local dev blockchain
 
+Using a persistent local dev blockchain can be convenient for the interface development.
+
     cp .env.development .env.development.local
 
 Edit .env.development.local

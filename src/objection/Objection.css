@@ -19,3 +19,8 @@
   font-style: italic;
   font-size: 12px;
 }
+
+.Objections-succeeded,
+.Objections-failed {
+  margin-bottom: 20px;
+}

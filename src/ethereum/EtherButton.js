@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Button from '../ui/button/Button';
 import faEthereum from '@fortawesome/fontawesome-free-brands/faEthereum';
 
@@ -7,44 +8,34 @@ class EtherButton extends Component {
     super (props);
 
     this.state = {
-      userAddress: null,
       userBalance: null
     }
   }
   componentDidMount() {
-    // Get user adress.
-    window.web3.eth.getAccounts((err, addresses) => {
+    // Get user balance.
+    window.web3.eth.getBalance(this.context.web3.selectedAccount, (err, balance) => {
       if (err) console.error (err);
       else {
-        this.setState({
-          userAddress: addresses[0]
+        let ethers = window.web3.fromWei(balance.toString());
+        ethers = parseFloat(ethers).toFixed(2);
+        this.setState ({
+          userBalance: ethers
         });
-        // Get user balance.
-        window.web3.eth.getBalance(this.state.userAddress, (err, balance) => {
+      }
+    });
+    // Watch latest block.
+    let filterLatestBlock = window.web3.eth.filter('latest');
+    filterLatestBlock.watch((err, block) => {
+      if (err) console.error (err);
+      else {
+        // Update user balance.
+        window.web3.eth.getBalance(this.context.web3.selectedAccount, (err, balance) => {
           if (err) console.error (err);
           else {
             let ethers = window.web3.fromWei(balance.toString());
             ethers = parseFloat(ethers).toFixed(2);
             this.setState ({
               userBalance: ethers
-            });
-          }
-        });
-        // Watch latest block.
-        let filterLatestBlock = window.web3.eth.filter('latest');
-        filterLatestBlock.watch((err, block) => {
-          if (err) console.error (err);
-          else {
-            // Update user balance.
-            window.web3.eth.getBalance(this.state.userAddress, (err, balance) => {
-              if (err) console.error (err);
-              else {
-                let ethers = window.web3.fromWei(balance.toString());
-                ethers = parseFloat(ethers).toFixed(2);
-                this.setState ({
-                  userBalance: ethers
-                });
-              }
             });
           }
         });
@@ -56,9 +47,16 @@ class EtherButton extends Component {
   }
   render() {
     return (
-      <Button value={ 'My Ether: ' + this.state.userBalance } icon={ faEthereum } disabled="true" />
+      <Button
+        value = { 'My Ether: ' + this.state.userBalance }
+        icon = { faEthereum } disabled="true"
+      />
     );
   }
+}
+
+EtherButton.contextTypes = {
+  web3: PropTypes.object
 }
 
 export default EtherButton;
