@@ -34,6 +34,19 @@ Leave that shell open with the BC running. Go to Parity UI, create a few account
 
 Update the adresses and if necessary the ABIs in /.env.development.local
 
+To deploy the TALAO token contract you must add the other Solidity contracts it depends upon. You can import them in Parity. The order of dependencies is:
+
++ ERC20Basic.sol
++ SafeMath.sol
++ BasicToken.sol
++ ERC20.sol
++ StandardToken.sol
++ Ownable.sol
++ MintableToken.sol
++ TalaoToken.sol
+
+... Or just use TalaoTokenMonolithic.sol
+
 ## Contributing
 
 + See [CONTRIBUTING.md](https://github.com/TalaoDAO/dao/blob/dev/CONTRIBUTING.md)
