@@ -13,10 +13,13 @@ class Objection extends Component {
   constructor (props) {
     super (props);
 
-    const contractObject = window.web3.eth.contract (JSON.parse(process.env.REACT_APP_OBJECTION_ABI));
+    const contract = new window.web3.eth.Contract (
+      JSON.parse(process.env.REACT_APP_OBJECTION_ABI),
+      process.env.REACT_APP_OBJECTION_ADDRESS
+    );
 
     this.state = {
-      contract: contractObject.at (process.env.REACT_APP_OBJECTION_ADDRESS),
+      contract: contract,
       endingDate: null,
       variableName: '',
       proposedValue: '',
@@ -35,136 +38,98 @@ class Objection extends Component {
     this.handleObjectionOpenFormSubmit = this.handleObjectionOpenFormSubmit.bind(this);
     this.handleClickReject = this.handleClickReject.bind(this);
     this.handleClickClose = this.handleClickClose.bind(this);
-    this.state.event = this.state.contract.Succeed();
+    // this.state.event = this.state.contract.Succeed();
   }
   componentDidMount() {
     // Is an objection open?
-    const { ending_date } = this.state.contract;
-    ending_date ((err, ending_date) => {
-      if (err) console.error (err);
-      else {
-        this.setState ({
-          endingDate: ending_date.toString()
-        });
-        // Get the objection.
-        if (ending_date > 0) {
-          const { currentObjectionId } = this.state.contract;
-          currentObjectionId ((err, objection_id) => {
-            if (err) console.error (err);
-            else {
-              this.setState ({
-                currentObjectionId: objection_id.toString()
-              });
-              // Get the events in which users rejected the objection.
-              this.state.contract.UserHasRejected(
-                {objection_id: this.state.currentObjectionId},
-                {fromBlock: 0, toBlock: 'latest'}
-              )
-              .get (
-                (err, rejected) => {
-                  if (err) console.error (err);
-                  else {
-                    this.setState ({
-                      usersHaveRejected: rejected
-                    });
-                    // Did the current user reject the objection?
-                    rejected.forEach( (event) => {
-                      if (event['args']['user'] === this.context.web3.selectedAccount) {
-                        this.setState ({
-                          userHasRejected: true
-                        });
-                      }
-                    })
-                  }
-                }
-              );
-            }
+    this.state.contract.methods.ending_date().call().then(ending_date => {
+      this.setState ({
+        endingDate: ending_date.toString()
+      });
+      // Get the objection.
+      if (ending_date > 0) {
+        this.state.contract.methods.currentObjectionId().call().then(objection_id => {
+          this.setState ({
+            currentObjectionId: objection_id.toString()
           });
-        }
+          // Get the events in which users rejected the objection.
+          this.state.contract
+            .getPastEvents(
+              'UserHasRejected',
+              {objection_id: this.state.currentObjectionId},
+              {fromBlock: 0, toBlock: 'latest'})
+            .then(rejected => {
+              this.setState ({
+                usersHaveRejected: rejected
+              });
+              // Did the current user reject the objection?
+              rejected.forEach( (event) => {
+                if (event['returnValues']['user'] === this.context.web3.selectedAccount) {
+                  this.setState ({
+                    userHasRejected: true
+                  });
+                }
+              })
+            });
+        });
       }
     });
     // Get objection variable name.
-    const { variable_name } = this.state.contract;
-    variable_name ((err, variable_name) => {
-      if (err) console.error ('An error occured:', err);
+    this.state.contract.methods.variable_name().call().then(variable => {
       this.setState ({
-        variableName: window.web3.toAscii(variable_name).replace(/\u0000/g, '')
+        variableName: window.web3.utils.toAscii(variable).replace(/\u0000/g, '')
       });
     });
     // Get objection proposed value.
-    const { proposed_value } = this.state.contract;
-    proposed_value ((err, proposed_value) => {
-      if (err) console.error ('An error occured:', err);
+    this.state.contract.methods.proposed_value().call().then(proposed => {
       this.setState ({
-        proposedValue: proposed_value.toString()
+        proposedValue: proposed.toString()
       });
     });
     // Get objection justification.
-    const { currentJustification } = this.state.contract;
-    currentJustification ((err, currentJustification) => {
-      if (err) console.error ('An error occured:', err);
+    this.state.contract.methods.currentJustification().call().then(justification => {
       this.setState ({
-        currentJustification: currentJustification
+        currentJustification: justification
       });
     });
     // Get objection creator.
-    const { currentOwner } = this.state.contract;
-    currentOwner ((err, currentOwner) => {
-      if (err) console.error ('An error occured:', err);
+    this.state.contract.methods.currentOwner().call().then(owner => {
       this.setState ({
-        currentOwner: currentOwner
+        currentOwner: owner
       });
     });
     // Get previously succeeded objections.
-    this.state.contract.Succeed(
-      {},
-      {fromBlock: 0, toBlock: 'latest'}
-    )
-    .get (
-      (err, succeeded) => {
-        if (err) console.error (err);
-        else {
-          var succeededObjections = [];
-          succeeded.forEach( (event) => {
-            let variable_name = window.web3.toAscii(event['args']['varname']).replace(/\u0000/g, '');
-            let value = (event['args']['value']).toString();
-            let succeededObjection = {
-              variable: variable_name,
-              value: value
-            }
-            succeededObjections.push(succeededObjection);
-          });
-          this.setState ({
-            succeededObjections: succeededObjections
-          });
+    this.state.contract.getPastEvents('Succeed', {}, {fromBlock: 0, toBlock: 'latest'}).then(events => {
+      var succeededObjections = [];
+      events.forEach( (event) => {
+        let variable_name = window.web3.utils.toAscii(event['args']['varname']).replace(/\u0000/g, '');
+        let value = (event['args']['value']).toString();
+        let succeededObjection = {
+          variable: variable_name,
+          value: value
         }
-      }
-    );
+        succeededObjections.push(succeededObjection);
+      });
+      this.setState ({
+        succeededObjections: succeededObjections
+      });
+    });
     // Get previously failed objections.
-    this.state.contract.Fail(
-      {},
-      {fromBlock: 0, toBlock: 'latest'}
-    )
-    .get (
-      (err, failed) => {
-        if (err) console.error (err);
-        else {
-          var failedObjections = [];
-          failed.forEach( (event) => {
-            let variable_name = window.web3.toAscii(event['args']['varname']).replace(/\u0000/g, '');
-            let value = (event['args']['value']).toString();
-            let failedObjection = {
-              variable: variable_name,
-              value: value
-            }
-            failedObjections.push(failedObjection);
-          });
-          this.setState ({
-            failedObjections: failedObjections
-          });
+    this.state.contract.getPastEvents('Fail', {}, {fromBlock: 0, toBlock: 'latest'}).then(events => {
+      var failedObjections = [];
+      events.forEach( (event) => {
+        let variable_name = window.web3.utils.toAscii(event['args']['varname']).replace(/\u0000/g, '');
+        let value = (event['args']['value']).toString();
+        let failedObjection = {
+          variable: variable_name,
+          value: value
         }
-      }
-    );
+        failedObjections.push(failedObjection);
+      });
+      this.setState ({
+        failedObjections: failedObjections
+      });
+    });
   }
   handleObjectionOpenFormInputChange(event) {
     const target = event.target;
