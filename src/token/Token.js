@@ -11,10 +11,13 @@ class Token extends Component {
   constructor (props) {
     super (props);
 
-    const contractObject = window.web3.eth.contract (JSON.parse(process.env.REACT_APP_TOKEN_ABI));
+    const contract = new window.web3.eth.Contract (
+      JSON.parse(process.env.REACT_APP_TOKEN_ABI),
+      process.env.REACT_APP_TOKEN_ADDRESS
+    );
 
     this.state = {
-      contract: contractObject.at (process.env.REACT_APP_TOKEN_ADDRESS),
+      contract: contract,
       tokenName: null,
       tokenSymbol: null,
       userBalance: null,
@@ -32,85 +35,52 @@ class Token extends Component {
   }
   componentDidMount() {
     // Get token name.
-    const { name } = this.state.contract;
-    name (
-      (err, name) => {
-        if (err) console.error (err);
-        else {
-          this.setState({
-            tokenName: name
-          });
-        }
-      }
-    );
+    this.state.contract.methods.name().call().then(name => {
+      this.setState({
+        tokenName: name
+      });
+    });
     // Get token symbol.
-    const { symbol } = this.state.contract;
-    symbol (
-      (err, symbol) => {
-        if (err) console.error (err);
-        else {
-          this.setState({
-            tokenSymbol: symbol
-          });
-        }
+    this.state.contract.methods.symbol().call( (err, symbol) => {
+      if (err) console.error (err);
+      else {
+        this.setState({
+          tokenSymbol: symbol
+        });
       }
-    );
-    // Get user balance (token).
-    const { balanceOf } = this.state.contract;
-    balanceOf (
-      this.context.web3.selectedAccount,
-      (err, balance) => {
-        if (err) console.error (err);
-        else {
-          let tokens = (window.web3.fromWei(balance.toString(), 'ether'));
-          tokens = parseFloat(tokens).toFixed(2);
-          this.setState({
-            userBalance: tokens
-          });
-        }
-      }
-    );
+    });
+    // Get user balance (tokens).
+    this.updateUserBalance();
+    // SUBSCRIPTIONS DO NOT WORK WITH METAMASK FOR NOW
     // Watch Transfer events (token).
     // Note: we could set 2 watches with filters on the user address (from & to) instead of 1 watch on all Transfer events.
-    this.state.contract.Transfer().watch (
-      (err, event) => {
-        if (err) console.error (err);
-        else {
-          // The user is involved in this event.
-          if (event['args']['to'] === this.context.web3.selectedAccount || event['args']['from'] === this.context.web3.selectedAccount) {
-            // Get his new balance.
-            balanceOf (
-              this.context.web3.selectedAccount,
-              (err, balance) => {
-                if (err) console.error (err);
-                else {
-                  let tokens = (window.web3.fromWei(balance.toString(), 'ether'));
-                  tokens = parseFloat(tokens).toFixed(2);
-                  this.setState({
-                    userBalance: tokens
-                  });
-                }
-              }
-            );
-            // How many tokens?
-            let tokens_wei = event['args']['value'].toString();
-            let tokens = window.web3.fromWei(tokens_wei);
-            // Did the user receive or send the tokens ?
-            let transferContent = (event['args']['to'] === this.context.web3.selectedAccount) ? event['args']['from'] + ' sent you ' + tokens + ' tokens' : 'You sent ' + tokens + ' tokens to ' + event['args']['to'];
-            // Date of the transaction.
-            window.web3.eth.getBlock(event['blockNumber'], (err, block) => {
-              let transferTimestamp = block.timestamp;
-              let transferDate = new Date(transferTimestamp * 1000);
-              let transferDateUtc = transferDate.toUTCString();
-              // Send flash message.
-              this.setState({
-                flashMessage: 'Last event on ' + transferDateUtc + ': ' + transferContent
-              });
-            });
-          }
-        }
-      }
-    );
+    // this.state.contract.events.Transfer(
+    //   (err, event) => {
+    //     if (err) console.error (err);
+    //     else {
+    //       // The user is involved in this event.
+    //       if (event['args']['to'] === this.context.web3.selectedAccount || event['args']['from'] === this.context.web3.selectedAccount) {
+    //         // Get his new balance.
+    //         this.updateUserBalance();
+    //         // How many tokens?
+    //         let tokens_wei = event['args']['value'].toString();
+    //         let tokens = window.web3.utils.fromWei(tokens_wei);
+    //         // Did the user receive or send the tokens ?
+    //         let transferContent = (event['args']['to'] === this.context.web3.selectedAccount) ? event['args']['from'] + ' sent you ' + tokens + ' tokens' : 'You sent ' + tokens + ' tokens to ' + event['args']['to'];
+    //         // Date of the transaction.
+    //         window.web3.eth.getBlock(event['blockNumber'], (err, block) => {
+    //           let transferTimestamp = block.timestamp;
+    //           let transferDate = new Date(transferTimestamp * 1000);
+    //           let transferDateUtc = transferDate.toUTCString();
+    //           // Send flash message.
+    //           this.setState({
+    //             flashMessage: 'Last event on ' + transferDateUtc + ': ' + transferContent
+    //           });
+    //         });
+    //       }
+    //     }
+    //   }
+    // );
   }
   handleSendShow() {
     this.setState({
@@ -127,28 +97,54 @@ class Token extends Component {
   }
   handleSendSubmit(event) {
     event.preventDefault();
-    const { transfer } = this.state.contract;
-    let tokens_wei = window.web3.toWei(this.state.sendAmount);
-    transfer (
-      this.state.sendTo,
-      tokens_wei,
-      {
-        from: this.context.web3.selectedAccount
-      },
-      (err, tx) => {
-        if (err) console.error (err);
-        else {
+    let tokens_wei = window.web3.utils.toWei(this.state.sendAmount);
+    this.state.contract.methods
+      .transfer(this.state.sendTo, tokens_wei)
+      .send({from: this.context.web3.selectedAccount})
+      .on('transactionHash', (hash) => {
+        this.setState({
+          sendShow: false,
+          flashMessage: 'Send tokens: tx submitted (' + hash + ')'
+        });
+      })
+      .on('receipt', (receipt) => {
+        let hash = receipt.events.Transfer.transactionHash;
+        let to = receipt.events.Transfer.returnValues.to;
+        let tokens_wei = receipt.events.Transfer.returnValues.value;
+        let tokens = window.web3.utils.fromWei(tokens_wei);
+        this.setState({
+          flashMessage: 'Sending ' + tokens + ' ' + this.state.tokenSymbol + 's to ' + to + ' (tx: ' + hash + ')'
+        });
+      })
+      // TODO: Investigate: confirmationNumber goes up to 24 but it should not since no other block is mined locally.
+      // It should go up to 12, one for each new mined block: https://web3js.readthedocs.io/en/1.0/web3-eth.html#sendtransaction
+      .on('confirmation', (confirmationNumber, receipt) => {
+        if (confirmationNumber > 0) {
+          let hash = receipt.events.Transfer.transactionHash;
+          let to = receipt.events.Transfer.returnValues.to;
+          let tokens_wei = receipt.events.Transfer.returnValues.value;
+          let tokens = window.web3.utils.fromWei(tokens_wei);
           this.setState({
-            sendShow: false,
-            flashMessage: 'Send tokens: transaction submitted, hash:' + tx
+            flashMessage: 'You sent ' + tokens + ' ' + this.state.tokenSymbol + 's to ' + to + ' (tx: ' + hash + ')'
           });
+          this.updateUserBalance();
         }
-      }
-    );
+      })
+      .on('error', console.error);
   }
   handleQrCodeShowClick() {
     this.setState({
       showQrCode: this.state.showQrCode ? false : true
+    });
+  }
+  // Update user balance (token).
+  updateUserBalance() {
+    this.state.contract.methods.balanceOf(this.context.web3.selectedAccount).call().then(balance => {
+      let tokens = (window.web3.utils.fromWei(balance.toString(), 'ether'));
+      tokens = parseFloat(tokens).toFixed(2);
+      this.setState({
+        userBalance: tokens
+      });
     });
   }
   render() {

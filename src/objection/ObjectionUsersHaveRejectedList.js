@@ -25,7 +25,7 @@ class ObjectionRejectedList extends Component {
   }
   render() {
     if (this.props.usersHaveRejected !== null && this.props.usersHaveRejected.length > 0) {
-      var list = this.props.usersHaveRejected.map(i => i.args['user']);
+      var list = this.props.usersHaveRejected.map(i => i.returnValues['user']);
       return (
         <div className="Objection-rejected-list">
           <h3>They rejected this objection</h3>
