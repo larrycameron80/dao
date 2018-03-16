@@ -31,7 +31,8 @@ class Objection extends Component {
       userHasRejected: null,
       objectionOpenFormSubmitted: false,
       succeededObjections: null,
-      failedObjections: null
+      failedObjections: null,
+      flashMessage: null
     }
 
     this.handleObjectionOpenFormInputChange = this.handleObjectionOpenFormInputChange.bind(this);
@@ -54,16 +55,18 @@ class Objection extends Component {
           });
           // Get the events in which users rejected the objection.
           this.state.contract
-            .getPastEvents(
-              'UserHasRejected',
-              {objection_id: this.state.currentObjectionId},
-              {fromBlock: 0, toBlock: 'latest'})
+            .getPastEvents('UserHasRejected', {
+              filter: {objection_id: this.state.currentObjectionId},
+              fromBlock: 0,
+              toBlock: 'latest'})
             .then(rejected => {
               this.setState ({
                 usersHaveRejected: rejected
               });
               // Did the current user reject the objection?
               rejected.forEach( (event) => {
+                console.log(event);
+                console.log(this.state.currentObjectionId);
                 if (event['returnValues']['user'] === this.context.web3.selectedAccount) {
                   this.setState ({
                     userHasRejected: true
@@ -118,8 +121,8 @@ class Objection extends Component {
     this.state.contract.getPastEvents('Fail', {}, {fromBlock: 0, toBlock: 'latest'}).then(events => {
       var failedObjections = [];
       events.forEach( (event) => {
-        let variable_name = window.web3.utils.toAscii(event['args']['varname']).replace(/\u0000/g, '');
-        let value = (event['args']['value']).toString();
+        let variable_name = window.web3.utils.toAscii(event['returnValues']['varname']).replace(/\u0000/g, '');
+        let value = (event['returnValues']['value']).toString();
         let failedObjection = {
           variable: variable_name,
           value: value
@@ -141,62 +144,68 @@ class Objection extends Component {
   }
   handleObjectionOpenFormSubmit(event) {
     event.preventDefault();
-    const { openObjection } = this.state.contract;
-    openObjection (
-      this.state.currentJustification,
-      this.state.proposedValue,
-      this.state.variableName,
-      {
-        from: this.context.web3.selectedAccount,
-      },
-      (err, tx) => {
-        if (err) console.error (err);
-        else {
+    this.state.contract.methods
+      .openObjection(this.state.currentJustification, this.state.proposedValue, window.web3.utils.asciiToHex(this.state.variableName))
+      .send({from: this.context.web3.selectedAccount})
+      .on('transactionHash', (hash) => {
+        this.setState({
+          flashMessage: 'Open objection: tx submitted (' + hash + ')'
+        });
+      })
+      .on('receipt', (receipt) => {
+        let hash = receipt.events.reject.transactionHash;
+        this.setState({
+          objectionOpenFormSubmitted: true,
+          flashMessage: 'Opening an objection (tx: ' + hash + ')'
+        });
+      })
+      .on('confirmation', (confirmationNumber, receipt) => {
+        if (confirmationNumber > 0) {
+          let hash = receipt.events.openObjection.transactionHash;
           this.setState({
-            objectionOpenFormSubmitted: true
+            flashMessage: 'Objection opened (tx: ' + hash + ')'
           });
         }
-      }
-    );
-    const { ending_date } = this.state.contract;
-    ending_date ((err, ending_date) => {
-      if (err) console.error ('An error occured:', err);
+      });
+    this.state.contract.methods.ending_date().call().then(date => {
       this.setState ({
-        endingDate: ending_date
+        endingDate: date
       });
     });
   }
   handleClickReject() {
-    const { reject } = this.state.contract;
-    reject (
-      {
-        from: this.context.web3.selectedAccount,
-      },
-      (err, tx) => {
-        if (err) console.error ('An error occured:', err);
-        else {
-          this.setState({
-            userHasRejected: true
-          });
-        }
-      }
-    );
+    this.state.contract.methods
+      .reject()
+      .send({from: this.context.web3.selectedAccount})
+      .on('transactionHash', (hash) => {
+        this.setState({
+          sendShow: false,
+          flashMessage: 'Reject: tx submitted (' + hash + ')'
+        });
+      })
+      .on('receipt', (receipt) => {
+        let hash = receipt.events.reject.transactionHash;
+        this.setState({
+          flashMessage: 'You rejected the objection (tx: ' + hash + ')'
+        });
+      });
   }
   handleClickClose() {
-    const { endObjection } = this.state.contract;
-    endObjection (
-      {
-        from: this.context.web3.selectedAccount,
-      },
-      (err, tx) => {
-        if (err) console.error ('An error occured:', err);
-        else {
-          this.setState({
-            endingDate: 0
-          });
-        }
-      }
-    );
+    this.state.contract.methods
+      .endObjection()
+      .send({from: this.context.web3.selectedAccount})
+      .on('transactionHash', (hash) => {
+        this.setState({
+          sendShow: false,
+          flashMessage: 'Close objection: tx submitted (' + hash + ')'
+        });
+      })
+      .on('receipt', (receipt) => {
+        let hash = receipt.events.reject.transactionHash;
+        this.setState({
+          flashMessage: 'You closed the objection (tx: ' + hash + ')'
+        });
+      });
   }
   render() {
     return (
