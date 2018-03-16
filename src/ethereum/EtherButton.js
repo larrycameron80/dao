@@ -13,6 +13,19 @@ class EtherButton extends Component {
   }
   componentDidMount() {
     // Get user balance.
+    this.getUserBalance();
+    // Watch latest block.
+    let filterLatestBlock = window.web3old.eth.filter('latest');
+    filterLatestBlock.watch((err, block) => {
+      if (err) console.error (err);
+      else this.getUserBalance();
+    });
+  }
+  componentWillUnmount() {
+    this.filterLatestBlock.stopWatching();
+  }
+  // Helper to get user balance (ethereum).
+  getUserBalance() {
     window.web3.eth.getBalance(this.context.web3.selectedAccount, (err, balance) => {
       if (err) console.error (err);
       else {
@@ -23,9 +36,6 @@ class EtherButton extends Component {
         });
       }
     });
-  }
-  componentWillUnmount() {
-    this.filterLatestBlock.stopWatching();
   }
   render() {
     return (

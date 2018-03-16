@@ -65,8 +65,6 @@ class Objection extends Component {
               });
               // Did the current user reject the objection?
               rejected.forEach( (event) => {
-                console.log(event);
-                console.log(this.state.currentObjectionId);
                 if (event['returnValues']['user'] === this.context.web3.selectedAccount) {
                   this.setState ({
                     userHasRejected: true
