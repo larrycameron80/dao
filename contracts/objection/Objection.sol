@@ -1,4 +1,4 @@
-pragma solidity ^0.4.19;
+pragma solidity ^0.4.21;
 
 /* Objection : as a user I want to be able to change the value of the DAO parameters
   An objection is a request from an user to change a parameter of the DAO. If no body
