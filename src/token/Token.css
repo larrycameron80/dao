@@ -16,6 +16,10 @@
   margin-right: auto;
 }
 
+.Token-ethereum-address-address a {
+  word-wrap:break-word;
+}
+
 .Token-qr-code-show {
   cursor: pointer;
 }

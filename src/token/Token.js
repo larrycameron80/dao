@@ -152,7 +152,7 @@ class Token extends Component {
       <div className="Token">
         <div className="Token-ethereum-address">
           <h2>My Ethereum address</h2>
-          <div className="blue box">
+          <div className="Token-ethereum-address-address blue box">
             <a
               href={ 'https://ropsten.etherscan.io/address/' + this.context.web3.selectedAccount }
               target="_blank" rel="noopener noreferrer">
@@ -162,7 +162,7 @@ class Token extends Component {
         </div>
         <div className="Token-token">
           <h2>{ 'My ' + this.state.tokenSymbol + 's' }</h2>
-          <div className="blue box">
+          <div className="green box">
             <p className="big">
               { this.state.userBalance + ' ' + this.state.tokenSymbol + 's' }
             </p>

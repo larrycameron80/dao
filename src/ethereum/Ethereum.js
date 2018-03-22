@@ -42,7 +42,7 @@ class Ethereum extends Component {
     return (
       <div className="Ethereum">
         <h2>My ETHERs</h2>
-        <div className="blue box big">
+        <div className="yellow box big">
           { this.state.userBalance } <FontAwesomeIcon icon={ faEthereum } />
         </div>
       </div>
