@@ -41,7 +41,11 @@ a:hover {
 }
 
 .blue a,
-.green a {
+.green a,
+.white .blue a,
+.yellow .blue a,
+.white .green a,
+.yellow .green a {
   color: white;
 }
 .white a,

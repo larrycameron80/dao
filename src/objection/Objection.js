@@ -103,8 +103,8 @@ class Objection extends Component {
     this.state.contract.getPastEvents('Succeed', {}, {fromBlock: 0, toBlock: 'latest'}).then(events => {
       var succeededObjections = [];
       events.forEach( (event) => {
-        let variable_name = window.web3.utils.toAscii(event['args']['varname']).replace(/\u0000/g, '');
-        let value = (event['args']['value']).toString();
+        let variable_name = window.web3.utils.toAscii(event['returnValues']['varname']).replace(/\u0000/g, '');
+        let value = (event['returnValues']['value']).toString();
         let succeededObjection = {
           variable: variable_name,
           value: value
