@@ -1,5 +1,5 @@
-.Objection {
-  padding: 20px 0;
+.Objection-rejected-list {
+  margin-top: 20px;
 }
 
 .Objection-rejected-list ul {
@@ -12,7 +12,6 @@
 
 .Objection-countdown {
   font-style: italic;
-  font-size: 12px;
 }
 
 .Objection-finished {

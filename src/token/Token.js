@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import './Token.css';
 import Button from '../ui/button/Button';
 import SendTokenForm from './SendTokenForm';
-import faExchangeAlt from '@fortawesome/fontawesome-free-solid/faExchangeAlt';
+import faQrcode from '@fortawesome/fontawesome-free-solid/faQrcode';
+import faArrowRight from '@fortawesome/fontawesome-free-solid/faArrowRight';
 import QrCode from 'qrcode.react';
-import EtherButton from '../ethereum/EtherButton';
 
 class Token extends Component {
   constructor (props) {
@@ -149,32 +149,46 @@ class Token extends Component {
   }
   render() {
     return (
-      <div className="Token blue">
-        <div className="Token-header-buttons">
-          <Button
-            value={ 'My ' + this.state.tokenSymbol + 's: ' + this.state.userBalance }
-            disabled = "true" />
-          <Button
-            value = { 'Send ' + this.state.tokenSymbol + 's' }
-            icon = { faExchangeAlt }
-            onClick = { this.handleSendShow } />
-          <EtherButton />
+      <div className="Token">
+        <div className="Token-ethereum-address">
+          <h2>My Ethereum address</h2>
+          <div className="blue box">
+            <a
+              href={ 'https://ropsten.etherscan.io/address/' + this.context.web3.selectedAccount }
+              target="_blank" rel="noopener noreferrer">
+                { this.context.web3.selectedAccount }
+              </a>
+          </div>
         </div>
-        <div>
-          <p>My address: { this.context.web3.selectedAccount }</p>
-          <p className="Token-qr-code-show" onClick = { this.handleQrCodeShowClick }>Show { this.state.tokenSymbol }'s QR code</p>
-        </div>
-        <div className = "Token-qr-code" style={ this.state.showQrCode ? {} : { display: 'none' }}>
-          <p>Display this on your desktop. On your mobile, open Cipher Browser, go to your account details, click <em>ADD TOKENS</em> and scan this QR code.</p>
-          <QrCode value = { process.env.REACT_APP_TOKEN_ADDRESS } />
-        </div>
-        <div style={ this.state.sendShow ? {} : { display: 'none' }}>
-          <SendTokenForm
-            onChange = { this.handleSendInputChange }
-            onSubmit = { this.handleSendSubmit }
-            to = { this.state.sendTo }
-            amount = { this.state.sendTokensAmount }
-            tokenSymbol = { this.state.tokenSymbol } />
+        <div className="Token-token">
+          <h2>{ 'My ' + this.state.tokenSymbol + 's' }</h2>
+          <div className="blue box">
+            <p className="big">
+              { this.state.userBalance + ' ' + this.state.tokenSymbol + 's' }
+            </p>
+            <div className="Token-token-actions">
+              <Button
+                value = { 'Send ' + this.state.tokenSymbol + 's' }
+                icon = { faArrowRight }
+                onClick = { this.handleSendShow } />
+              <Button
+                value = "Show QR code"
+                icon = { faQrcode }
+                onClick = { this.handleQrCodeShowClick } />
+            </div>
+            <div style = { this.state.sendShow ? {} : { display: 'none' }}>
+              <SendTokenForm
+                onChange = { this.handleSendInputChange }
+                onSubmit = { this.handleSendSubmit }
+                to = { this.state.sendTo }
+                amount = { this.state.sendTokensAmount }
+                tokenSymbol = { this.state.tokenSymbol } />
+            </div>
+            <div className = "Token-qr-code" style={ this.state.showQrCode ? {} : { display: 'none' }}>
+              <p>Display this on your desktop. On your mobile, open Cipher Browser, go to your account details, click <em>ADD TOKENS</em> and scan this QR code.</p>
+              <QrCode value = { process.env.REACT_APP_TOKEN_ADDRESS } />
+            </div>
+          </div>
         </div>
         <div className="Token-header-flashmessage">
           <p>{ this.state.flashMessage }</p>

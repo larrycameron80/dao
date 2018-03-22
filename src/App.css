@@ -2,13 +2,10 @@
   text-align: center;
 }
 
-.App-header {
-  padding: 20px;
-}
-
 .App-header-logo {
+  width: 150px;
+  height: 150px;
   animation: App-header-logo-spin infinite 10s cubic-bezier(.50,0,.50,1);
-  height: 80px;
 }
 
 @keyframes App-header-logo-spin {
@@ -18,10 +15,15 @@
 
 .App-header-title {
   font-size: 1.5em;
+  margin-top: 0;
 }
 
 .App-header p {
   margin-bottom: 0;
+}
+
+.App-main {
+  padding: 20px 0;
 }
 
 .App-footer {

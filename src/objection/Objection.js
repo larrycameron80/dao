@@ -207,11 +207,13 @@ class Objection extends Component {
   }
   render() {
     return (
-      <div className="Objection yellow">
+      <div className="Objection">
+        <h1>Objections</h1>
+        <p>As a member of the Talao DAO, if you want to change some parameters of the DAO, then you can submit <em>Objections</em>.</p>
         <div className="Objection-open" style={ this.state.endingDate === '0' ? {} : { display: 'none' }}>
           <h2>No current objection</h2>
           <p>Would you like to propose to change a variable value?</p>
-          <div className="box green">
+          <div className="box blue">
             <ObjectionOpenForm
               onChange = { this.handleObjectionOpenFormInputChange }
               onSubmit = { this.handleObjectionOpenFormSubmit }
@@ -224,7 +226,7 @@ class Objection extends Component {
         </div>
         <div className="Objection-reject" style={ this.state.endingDate === '0' ? { display: 'none' } : {}}>
           <h2>Current objection</h2>
-          <div className="box green">
+          <div className="box blue">
             <p className="big">
               Assign the value <strong>{ this.state.proposedValue }</strong> to the variable <strong>{ this.state.variableName }</strong>.
             </p>
@@ -249,13 +251,16 @@ class Objection extends Component {
           </div>
         </div>
         <ObjectionUsersHaveRejectedList {...this.state } />
+        <div className="Objections-previous">
+          <h2>Previous objections</h2>
+        </div>
         <Table
           className = "Objections-succeeded box green"
           caption = "Previously succeeded objections"
           rows = { this.state.succeededObjections }
         />
         <Table
-          className = "Objections-failed box green"
+          className = "Objections-failed box yellow"
           caption = "Previously failed objections"
           rows = { this.state.failedObjections }
         />

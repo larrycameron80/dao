@@ -8,7 +8,21 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Akkmono', sans-serif;
-  background-color: #0e6c3f;
+  background-color: #007d50;
+  font-size: 16px;
+}
+@media screen and (max-width: 1365px) {
+  body {
+    font-size: 12px;
+  }
+}
+
+h1 {
+  margin-top: 1.5em;
+}
+
+h2 {
+  margin-top: 1.5em;
 }
 
 /* Sizes */
@@ -27,17 +41,25 @@ a:hover {
   color: black;
   background-color: white;
 }
+.blue-light {
+  background-color: #1EAADC;
+  color: black;
+}
 .blue {
+  background-color: #0A4178;
   color: white;
-  background-color: #291b51;
+}
+.blue-dark {
+  background-color: #232D55;
+  color: white;
 }
 .yellow {
   color: black;
-  background-color: #fed709;
+  background-color: #ffdc05;
 }
 .green {
   color: white;
-  background-color: #0e6c3f;
+  background-color: #007d50;
 }
 
 .blue a,
@@ -57,5 +79,5 @@ a:hover {
 .box {
   width: 50%;
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px;
 }
