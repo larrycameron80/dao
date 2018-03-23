@@ -25,7 +25,7 @@ class Web3WrapperUnavailable extends Component {
 class Web3WrapperUnavailableAccount extends Component {
   render() {
     return (
-      <div className="Web3 blue">
+      <div className="Web3Wrapper blue">
         <p>Great, you have a web browser with the Metamask extension enabled!</p>
         <p><strong>Log in now in Metamask</strong> to access Ethereum features.</p>
       </div>

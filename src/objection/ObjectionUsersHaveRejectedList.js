@@ -27,7 +27,7 @@ class ObjectionRejectedList extends Component {
     if (this.props.usersHaveRejected !== null && this.props.usersHaveRejected.length > 0) {
       var list = this.props.usersHaveRejected.map(i => i.returnValues['user']);
       return (
-        <div className="Objection-rejected-list">
+        <div className="Objection-rejected-list yellow box">
           <h3>They rejected this objection</h3>
           { this.renderList(list) }
         </div>
@@ -35,7 +35,7 @@ class ObjectionRejectedList extends Component {
     }
     else if (this.props.objectionEndingDate > 0) {
       return (
-        <div className="Objection-rejected-list">
+        <div className="Objection-rejected-list yellow">
           <p>No one rejected this objection, so far.</p>
         </div>
       );
