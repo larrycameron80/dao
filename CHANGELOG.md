@@ -1,5 +1,13 @@
 # Talao DAO prototype: changelog
 
+## 0.5.0
+
++ Notifications
+
+## 0.4.0
+
++ Router
+
 ## 0.3.0
 
 + Use a [custom version of react-web3 for Web3.JS 1.0.0-beta.N](https://github.com/guix77/react-web3/tree/talao) while waiting for PRs to get accepted on the web3-v1 branch

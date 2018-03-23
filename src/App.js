@@ -24,7 +24,7 @@ class App extends Component {
           </Web3Wrapper>
         </section>
         <footer className="App-footer green">
-          <p>Talao DAO prototype v0.4.0</p>
+          <p>Talao DAO prototype v0.5.0</p>
           <ul className="App-footer-links">
             <li><a href="https://github.com/TalaoDAO" target="_blank" rel="noopener noreferrer">GitHub</a></li>
             <li><a href="https://ico.talao.io" target="_blank" rel="noopener noreferrer">The Talao ICO</a></li>

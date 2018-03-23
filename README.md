@@ -7,6 +7,8 @@ Based on https://github.com/facebook/create-react-app
     git clone git@github.com:TalaoDAO/dao.git
     cd dao
     npm install
+    cp .env.development .env.development.local
+    sed -i 's/HOST=dev.talao.io/HOST=localhost/g' .env.development.local
     npm run start
 
 You are now running a local dev server of Talao DAO, connected to the Ropsten network.
