@@ -1,0 +1,58 @@
+.AppConnected-menu {
+  padding: 0;
+  text-align: center;
+}
+
+.AppConnected-menu ul {
+  margin: 0;
+  padding: 0;
+}
+
+.AppConnected-menu li {
+  padding: 20px 0;
+  list-style-type: none;
+  display: inline-block;
+}
+
+.AppConnected-menu a {
+  padding: 20px 30px;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all linear .3s;
+}
+@media screen and (max-width: 1365px) {
+  .AppConnected-menu a {
+    padding: 20px 20px;
+  }
+}
+
+.AppConnected-menu ul > li:nth-child(1) a {
+  color: white;
+  background-color: #0A4178; /* blue */
+}
+
+.AppConnected-menu ul > li:nth-child(2) a {
+  color: white;
+  background-color: #007d50; /* green */
+}
+
+.AppConnected-menu ul > li:nth-child(3) a {
+  color: black;
+  background-color: #ffdc05; /* yellow */
+}
+
+.AppConnected-menu ul > li a:hover {
+  background-color: white;
+  color: black;
+}
+
+.AppConnected article {
+  padding-top: 20px;
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+.AppConnected article p {
+  text-align: justify;
+}

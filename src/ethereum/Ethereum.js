@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Button from '../ui/button/Button';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faEthereum from '@fortawesome/fontawesome-free-brands/faEthereum';
 
-class EtherButton extends Component {
+class Ethereum extends Component {
   constructor (props) {
     super (props);
 
@@ -40,16 +40,18 @@ class EtherButton extends Component {
   }
   render() {
     return (
-      <Button
-        value = { 'My Ether: ' + this.state.userBalance }
-        icon = { faEthereum } disabled="true"
-      />
+      <div className="Ethereum">
+        <h2>My ETHERs</h2>
+        <div className="yellow box big">
+          { this.state.userBalance } <FontAwesomeIcon icon={ faEthereum } />
+        </div>
+      </div>
     );
   }
 }
 
-EtherButton.contextTypes = {
+Ethereum.contextTypes = {
   web3: PropTypes.object
 }
 
-export default EtherButton;
+export default Ethereum;

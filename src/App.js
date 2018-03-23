@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import logo from './assets/images/Talao-logo.png';
-import './App.css';
+import logo from './assets/images/Talao.svg';
+import { NotificationContainer } from 'react-notifications';
 import Web3Wrapper from './web3wrapper/Web3Wrapper';
 import AppConnected from './AppConnected';
+import 'react-notifications/lib/notifications.css';
+import './App.css';
 
 class App extends Component {
   render() {
@@ -14,14 +16,15 @@ class App extends Component {
           </a>
           <h1 className="App-header-title">Talao</h1>
           <p>The first Ethereum-based Talents Autonomous Organization.</p>
+          <NotificationContainer />
         </header>
-        <section className="App-content yellow">
+        <section className="App-main white">
           <Web3Wrapper>
             <AppConnected />
           </Web3Wrapper>
         </section>
         <footer className="App-footer green">
-          <p>Talao DAO prototype v0.3.0</p>
+          <p>Talao DAO prototype v0.4.0</p>
           <ul className="App-footer-links">
             <li><a href="https://github.com/TalaoDAO" target="_blank" rel="noopener noreferrer">GitHub</a></li>
             <li><a href="https://ico.talao.io" target="_blank" rel="noopener noreferrer">The Talao ICO</a></li>

@@ -8,10 +8,7 @@ table caption {
   padding-bottom: 20px;
 }
 table.green caption {
-  background-color: #0e6c3f;
-}
-table.box caption {
-  padding-top: 10px;
+  color: black;
 }
 
 table tr td {

@@ -1,13 +1,13 @@
 .btn {
   margin: 10px;
   color: white;
-  background-color: #291b51;
+  background-color: #0A4178;
   border: 2px solid white;
   transition: all linear .1s;
 }
 
 .btn:hover {
-  color: #291b51;
+  color: #0A4178;
   background-color: white;
   background-image: unset;
 }
@@ -25,11 +25,11 @@
 
 .green .btn {
   color: white;
-  background-color: #0e6c3f;
+  background-color: #007d50;
 }
 
 .green .btn:hover {
-  color: #0e6c3f;
+  color: #007d50;
   background-color: white;
 }
 

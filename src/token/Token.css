@@ -1,21 +1,23 @@
-.Token {
-  padding: 20px 0;
-}
-
 .Token p {
   margin: 10px 0 0 0;
 }
 
-.Token-header-buttons {
+.Token-token-actions {
+  margin-top: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 20px;
 }
 
 .Token-header-flashmessage {
   width: 90%;
   margin-left: auto;
   margin-right: auto;
+}
+
+.Token-ethereum-address-address a {
+  word-wrap:break-word;
 }
 
 .Token-qr-code-show {
