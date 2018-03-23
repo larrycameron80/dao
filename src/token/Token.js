@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import './Token.css';
 import { NotificationManager } from 'react-notifications';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Button from '../ui/button/Button';
 import SendTokenForm from './SendTokenForm';
+import faCopy from '@fortawesome/fontawesome-free-solid/faCopy';
 import faQrcode from '@fortawesome/fontawesome-free-solid/faQrcode';
 import faArrowRight from '@fortawesome/fontawesome-free-solid/faArrowRight';
 import QrCode from 'qrcode.react';
+import './Token.css';
 
 class Token extends Component {
   constructor (props) {
@@ -17,12 +19,15 @@ class Token extends Component {
       process.env.REACT_APP_TOKEN_ADDRESS
     );
 
+    const contractObjectOldWeb3 = window.web3old.eth.contract (JSON.parse(process.env.REACT_APP_TOKEN_ABI));
+
     this.state = {
       contract: contract,
+      contractOldWeb3: contractObjectOldWeb3.at (process.env.REACT_APP_TOKEN_ADDRESS),
       tokenName: null,
       tokenSymbol: null,
       userBalance: null,
-      flashMessage: null,
+      initialBlock: null,
       sendShow: false,
       sendTo: '',
       sendAmount: '',
@@ -52,36 +57,34 @@ class Token extends Component {
     });
     // Get user balance (tokens).
     this.updateUserBalance();
-    // SUBSCRIPTIONS DO NOT WORK WITH METAMASK FOR NOW
-    // Watch Transfer events (token).
-    // Note: we could set 2 watches with filters on the user address (from & to) instead of 1 watch on all Transfer events.
-    // this.state.contract.events.Transfer(
-    //   (err, event) => {
-    //     if (err) console.error (err);
-    //     else {
-    //       // The user is involved in this event.
-    //       if (event['args']['to'] === this.context.web3.selectedAccount || event['args']['from'] === this.context.web3.selectedAccount) {
-    //         // Get his new balance.
-    //         this.updateUserBalance();
-    //         // How many tokens?
-    //         let tokens_wei = event['args']['value'].toString();
-    //         let tokens = window.web3.utils.fromWei(tokens_wei);
-    //         // Did the user receive or send the tokens ?
-    //         let transferContent = (event['args']['to'] === this.context.web3.selectedAccount) ? event['args']['from'] + ' sent you ' + tokens + ' tokens' : 'You sent ' + tokens + ' tokens to ' + event['args']['to'];
-    //         // Date of the transaction.
-    //         window.web3.eth.getBlock(event['blockNumber'], (err, block) => {
-    //           let transferTimestamp = block.timestamp;
-    //           let transferDate = new Date(transferTimestamp * 1000);
-    //           let transferDateUtc = transferDate.toUTCString();
-    //           // Send flash message.
-    //           this.setState({
-    //             flashMessage: 'Last event on ' + transferDateUtc + ': ' + transferContent
-    //           });
-    //         });
-    //       }
-    //     }
-    //   }
-    // );
+    // Get initial block number when user connects.
+    window.web3.eth.getBlockNumber().then(blockNumber => {
+      this.setState({
+        initialBlock: blockNumber
+      })
+    });
+    // Watch Transfer events in which the user received tokens.
+    // We are using the old Web3 injected by Metamask for this, because for now Metamask does not support Web3.1 subscriptions.
+    this.transferEvent = this.state.contractOldWeb3.Transfer({to: this.context.web3.selectedAccount });
+    this.transferEvent.watch (
+      (err, event) => {
+        if (err) console.error (err);
+        else {
+          if (event['blockNumber'] > this.state.initialBlock) {
+            // Update user balance.
+            this.updateUserBalance();
+            // Notificate user.
+            let tokens_wei = event['args']['value'].toString();
+            let tokens = window.web3old.fromWei(tokens_wei);
+            let message = event['args']['from'] + ' sent you ' + tokens + ' ' + this.state.tokenSymbol + 's';
+            NotificationManager.info(message, 'Tokens received');
+          }
+        }
+      }
+    );
+  }
+  componentWillUnmount() {
+    this.transferEvent.stopWatching( () => {} );
   }
   handleSendShow() {
     this.setState({
@@ -165,11 +168,20 @@ class Token extends Component {
         <div className="Token-ethereum-address">
           <h2>My Ethereum address</h2>
           <div className="Token-ethereum-address-address blue box">
-            <a
-              href={ 'https://ropsten.etherscan.io/address/' + this.context.web3.selectedAccount }
-              target="_blank" rel="noopener noreferrer">
-                { this.context.web3.selectedAccount }
+            <p>
+              <a
+                href={ 'https://ropsten.etherscan.io/address/' + this.context.web3.selectedAccount }
+                target="_blank" rel="noopener noreferrer">
+                  { this.context.web3.selectedAccount }
               </a>
+              <CopyToClipboard
+                text = { this.context.web3.selectedAccount }
+                onCopy = { () => NotificationManager.success('Copied to clipboard') }>
+                <Button
+                  value = "copy"
+                  icon = { faCopy } />
+              </CopyToClipboard>
+            </p>
           </div>
         </div>
         <div className="Token-token">
@@ -201,9 +213,6 @@ class Token extends Component {
               <QrCode value = { process.env.REACT_APP_TOKEN_ADDRESS } />
             </div>
           </div>
-        </div>
-        <div className="Token-header-flashmessage">
-          <p>{ this.state.flashMessage }</p>
         </div>
       </div>
     );

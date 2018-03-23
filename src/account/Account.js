@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Token from '../token/Token';
 import Ethereum from '../ethereum/Ethereum';
+import './Account.css';
 
 class Account extends Component {
   render() {
