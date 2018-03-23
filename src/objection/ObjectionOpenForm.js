@@ -12,7 +12,7 @@ class ObjectionOpenForm extends Component {
           <div className="pure-control-group">
             <input
               name="variableName" type="text"
-              className="pure-input-1-2"
+              className="pure-input-1"
               placeholder="Variable name"
               value={ this.props.variableName }
               onChange={ this.props.onChange } />
@@ -20,7 +20,7 @@ class ObjectionOpenForm extends Component {
           <div className="pure-control-group">
             <input
               name="proposedValue" type="text"
-              className="pure-input-1-2"
+              className="pure-input-1"
               placeholder="Proposed value"
               value={ this.props.proposedValue }
               onChange={ this.props.onChange } />
@@ -28,7 +28,7 @@ class ObjectionOpenForm extends Component {
           <div className="pure-control-group">
             <input
               name="currentJustification"
-              type="text" className="pure-input-1-2"
+              type="text" className="pure-input-1"
               placeholder="Justification"
               value={ this.props.currentJustification }
               onChange={ this.props.onChange } />
@@ -36,7 +36,7 @@ class ObjectionOpenForm extends Component {
           <div className="pure-control-group">
             <input
               id="Objection-open-form-submit"
-              className="pure-input-1-2 pure-button btn btn-green-inversed"
+              className="pure-input-1 pure-button btn btn-green-inversed"
               type="submit"
               value="Open objection" />
           </div>
