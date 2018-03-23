@@ -19,12 +19,15 @@ class Token extends Component {
       process.env.REACT_APP_TOKEN_ADDRESS
     );
 
+    const contractObjectOldWeb3 = window.web3old.eth.contract (JSON.parse(process.env.REACT_APP_TOKEN_ABI));
+
     this.state = {
       contract: contract,
+      contractOldWeb3: contractObjectOldWeb3.at (process.env.REACT_APP_TOKEN_ADDRESS),
       tokenName: null,
       tokenSymbol: null,
       userBalance: null,
-      flashMessage: null,
+      initialBlock: null,
       sendShow: false,
       sendTo: '',
       sendAmount: '',
@@ -54,36 +57,32 @@ class Token extends Component {
     });
     // Get user balance (tokens).
     this.updateUserBalance();
-    // SUBSCRIPTIONS DO NOT WORK WITH METAMASK FOR NOW
-    // Watch Transfer events (token).
-    // Note: we could set 2 watches with filters on the user address (from & to) instead of 1 watch on all Transfer events.
-    // this.state.contract.events.Transfer(
-    //   (err, event) => {
-    //     if (err) console.error (err);
-    //     else {
-    //       // The user is involved in this event.
-    //       if (event['args']['to'] === this.context.web3.selectedAccount || event['args']['from'] === this.context.web3.selectedAccount) {
-    //         // Get his new balance.
-    //         this.updateUserBalance();
-    //         // How many tokens?
-    //         let tokens_wei = event['args']['value'].toString();
-    //         let tokens = window.web3.utils.fromWei(tokens_wei);
-    //         // Did the user receive or send the tokens ?
-    //         let transferContent = (event['args']['to'] === this.context.web3.selectedAccount) ? event['args']['from'] + ' sent you ' + tokens + ' tokens' : 'You sent ' + tokens + ' tokens to ' + event['args']['to'];
-    //         // Date of the transaction.
-    //         window.web3.eth.getBlock(event['blockNumber'], (err, block) => {
-    //           let transferTimestamp = block.timestamp;
-    //           let transferDate = new Date(transferTimestamp * 1000);
-    //           let transferDateUtc = transferDate.toUTCString();
-    //           // Send flash message.
-    //           this.setState({
-    //             flashMessage: 'Last event on ' + transferDateUtc + ': ' + transferContent
-    //           });
-    //         });
-    //       }
-    //     }
-    //   }
-    // );
+    // Get initial block number when user connects.
+    window.web3.eth.getBlockNumber().then(blockNumber => {
+      this.setState({
+        initialBlock: blockNumber
+      })
+    });
+    // Watch Transfer events in which the user received tokens.
+    // We are using the old Web3 injected by Metamask for this, because for now Metamask does not support Web3.1 subscriptions.
+    this.state.contractOldWeb3.Transfer({to: this.context.web3.selectedAccount }).watch (
+      (err, event) => {
+        if (err) console.error (err);
+        else {
+          if (event['blockNumber'] > this.state.initialBlock) {
+            console.log(event['blockNumber']);
+            console.log(this.state.initialBlock);
+            // Update user balance.
+            this.updateUserBalance();
+            // Notificate user.
+            let tokens_wei = event['args']['value'].toString();
+            let tokens = window.web3old.fromWei(tokens_wei);
+            let message = event['args']['from'] + ' sent you ' + tokens + ' ' + this.state.tokenSymbol + 's';
+            NotificationManager.info(message, 'Tokens received');
+          }
+        }
+      }
+    );
   }
   handleSendShow() {
     this.setState({
@@ -212,9 +211,6 @@ class Token extends Component {
               <QrCode value = { process.env.REACT_APP_TOKEN_ADDRESS } />
             </div>
           </div>
-        </div>
-        <div className="Token-header-flashmessage">
-          <p>{ this.state.flashMessage }</p>
         </div>
       </div>
     );
