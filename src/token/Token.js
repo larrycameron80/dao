@@ -65,13 +65,12 @@ class Token extends Component {
     });
     // Watch Transfer events in which the user received tokens.
     // We are using the old Web3 injected by Metamask for this, because for now Metamask does not support Web3.1 subscriptions.
-    this.state.contractOldWeb3.Transfer({to: this.context.web3.selectedAccount }).watch (
+    this.transferEvent = this.state.contractOldWeb3.Transfer({to: this.context.web3.selectedAccount });
+    this.transferEvent.watch (
       (err, event) => {
         if (err) console.error (err);
         else {
           if (event['blockNumber'] > this.state.initialBlock) {
-            console.log(event['blockNumber']);
-            console.log(this.state.initialBlock);
             // Update user balance.
             this.updateUserBalance();
             // Notificate user.
@@ -83,6 +82,9 @@ class Token extends Component {
         }
       }
     );
+  }
+  componentWillUnmount() {
+    this.transferEvent.stopWatching( () => {} );
   }
   handleSendShow() {
     this.setState({
