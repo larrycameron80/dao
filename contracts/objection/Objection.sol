@@ -8,6 +8,8 @@ pragma solidity ^0.4.21;
 */
 contract Objection {
 
+    // A new objection was created
+    event NewObjection(int id, bytes32 variable, int value, string justification);
     // A single user has rejected the objection
     event UserHasRejected(int indexed objection_id, address user);
     // Too many users have rejected the objection : it is canceled
@@ -89,6 +91,7 @@ contract Objection {
         proposed_value = value;
         ending_date = now + uint(values["objection_duration"].value);
         currentObjectionId++;
+        NewObjection(currentObjectionId, variable, value, justification);
     }
 
     // Vote against the current objection

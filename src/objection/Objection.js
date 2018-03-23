@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import './Objection.css';
+import { NotificationManager } from 'react-notifications';
 import ObjectionOpenForm from './ObjectionOpenForm';
 import ObjectionUsersHaveRejectedList from './ObjectionUsersHaveRejectedList';
 import Table from '../ui/table/Table';
@@ -8,6 +8,7 @@ import Button from '../ui/button/Button';
 import faBan from '@fortawesome/fontawesome-free-solid/faBan';
 import faWindowClose from '@fortawesome/fontawesome-free-solid/faWindowClose';
 import Countdown from 'react-countdown-now';
+import './Objection.css';
 
 class Objection extends Component {
   constructor (props) {
@@ -20,7 +21,7 @@ class Objection extends Component {
 
     this.state = {
       contract: contract,
-      endingDate: null,
+      endingDate: 0,
       variableName: '',
       proposedValue: '',
       currentJustification: '',
@@ -29,10 +30,8 @@ class Objection extends Component {
       currentObjectionId: null,
       usersHaveRejected: null,
       userHasRejected: null,
-      objectionOpenFormSubmitted: false,
       succeededObjections: null,
-      failedObjections: null,
-      flashMessage: null
+      failedObjections: null
     }
 
     this.handleObjectionOpenFormInputChange = this.handleObjectionOpenFormInputChange.bind(this);
@@ -43,38 +42,7 @@ class Objection extends Component {
   }
   componentDidMount() {
     // Is an objection open?
-    this.state.contract.methods.ending_date().call().then(ending_date => {
-      this.setState ({
-        endingDate: ending_date.toString()
-      });
-      // Get the objection.
-      if (ending_date > 0) {
-        this.state.contract.methods.currentObjectionId().call().then(objection_id => {
-          this.setState ({
-            currentObjectionId: objection_id.toString()
-          });
-          // Get the events in which users rejected the objection.
-          this.state.contract
-            .getPastEvents('UserHasRejected', {
-              filter: {objection_id: this.state.currentObjectionId},
-              fromBlock: 0,
-              toBlock: 'latest'})
-            .then(rejected => {
-              this.setState ({
-                usersHaveRejected: rejected
-              });
-              // Did the current user reject the objection?
-              rejected.forEach( (event) => {
-                if (event['returnValues']['user'] === this.context.web3.selectedAccount) {
-                  this.setState ({
-                    userHasRejected: true
-                  });
-                }
-              })
-            });
-        });
-      }
-    });
+    this.checkObjection();
     // Get objection variable name.
     this.state.contract.methods.variable_name().call().then(variable => {
       this.setState ({
@@ -146,64 +114,148 @@ class Objection extends Component {
       .openObjection(this.state.currentJustification, this.state.proposedValue, window.web3.utils.asciiToHex(this.state.variableName))
       .send({from: this.context.web3.selectedAccount})
       .on('transactionHash', (hash) => {
-        this.setState({
-          flashMessage: 'Open objection: tx submitted (' + hash + ')'
+        let message = 'Opening objection (transaction hash: ' + hash + ')';
+        NotificationManager.create({
+          id: 100,
+          type: 'info',
+          message: message,
+          title: 'Transaction submitted',
+          timeOut: 0,
         });
       })
       .on('receipt', (receipt) => {
-        let hash = receipt.events.reject.transactionHash;
-        this.setState({
-          objectionOpenFormSubmitted: true,
-          flashMessage: 'Opening an objection (tx: ' + hash + ')'
+        let variable = window.web3.utils.toAscii(receipt.events.NewObjection.returnValues.variable).replace(/\u0000/g, '');
+        let value = receipt.events.NewObjection.returnValues.value.toString();
+        let justification = receipt.events.NewObjection.returnValues.justification;
+        let message = 'Opening objection to set ' + variable + ' to ' + value + ', justification: ' + justification;
+        NotificationManager.remove({id: 100});
+        NotificationManager.create({
+          id: 101,
+          type: 'info',
+          message: message,
+          title: 'Transaction received',
+          timeOut: 0,
         });
       })
       .on('confirmation', (confirmationNumber, receipt) => {
-        if (confirmationNumber > 0) {
-          let hash = receipt.events.openObjection.transactionHash;
-          this.setState({
-            flashMessage: 'Objection opened (tx: ' + hash + ')'
-          });
+        // TODO: optimal confirmations to wait for?
+        if (confirmationNumber === 12) {
+          let variable = window.web3.utils.toAscii(receipt.events.NewObjection.returnValues.variable).replace(/\u0000/g, '');
+          let value = receipt.events.NewObjection.returnValues.value.toString();
+          let justification = receipt.events.NewObjection.returnValues.justification;
+          let message = 'Opening objection to set ' + variable + ' to ' + value + ', justification: ' + justification;
+          NotificationManager.remove({id: 101});
+          NotificationManager.success(message, 'Transaction completed');
+          this.checkObjection();
         }
-      });
-    this.state.contract.methods.ending_date().call().then(date => {
-      this.setState ({
-        endingDate: date
-      });
-    });
+      })
+      .on('error', console.error);
   }
   handleClickReject() {
     this.state.contract.methods
       .reject()
       .send({from: this.context.web3.selectedAccount})
       .on('transactionHash', (hash) => {
-        this.setState({
-          sendShow: false,
-          flashMessage: 'Reject: tx submitted (' + hash + ')'
+        let message = 'Rejecting objection (transaction hash: ' + hash + ')';
+        NotificationManager.create({
+          id: 200,
+          type: 'info',
+          message: message,
+          title: 'Transaction submitted',
+          timeOut: 0,
         });
       })
       .on('receipt', (receipt) => {
-        let hash = receipt.events.reject.transactionHash;
-        this.setState({
-          flashMessage: 'You rejected the objection (tx: ' + hash + ')'
+        let message = 'Rejecting objection for variable: ' + this.state.variableName + ', to value: ' + this.state.proposedValue + ')';
+        NotificationManager.remove({id: 200});
+        NotificationManager.create({
+          id: 201,
+          type: 'info',
+          message: message,
+          title: 'Transaction received',
+          timeOut: 0,
         });
-      });
+      })
+      .on('confirmation', (confirmationNumber, receipt) => {
+        // TODO: optimal confirmations to wait for?
+        if (confirmationNumber === 12) {
+          let message = 'Rejected objection for variable: ' + this.state.variableName + ', to value: ' + this.state.proposedValue + ')';
+          NotificationManager.remove({id: 201});
+          NotificationManager.success(message, 'Transaction completed');
+          this.checkObjection();
+        }
+      })
+      .on('error', console.error);
   }
   handleClickClose() {
     this.state.contract.methods
       .endObjection()
       .send({from: this.context.web3.selectedAccount})
       .on('transactionHash', (hash) => {
-        this.setState({
-          sendShow: false,
-          flashMessage: 'Close objection: tx submitted (' + hash + ')'
+        let message = 'Closing finished objection (transaction hash: ' + hash + ')';
+        NotificationManager.create({
+          id: 300,
+          type: 'info',
+          message: message,
+          title: 'Transaction submitted',
+          timeOut: 0,
         });
       })
       .on('receipt', (receipt) => {
-        let hash = receipt.events.reject.transactionHash;
-        this.setState({
-          flashMessage: 'You closed the objection (tx: ' + hash + ')'
+        let message = 'Closing finished objection for variable: ' + this.state.variableName + ', to value: ' + this.state.proposedValue + ')';
+        NotificationManager.remove({id: 300});
+        NotificationManager.create({
+          id: 301,
+          type: 'info',
+          message: message,
+          title: 'Transaction received',
+          timeOut: 0,
         });
+      })
+      .on('confirmation', (confirmationNumber, receipt) => {
+        // TODO: optimal confirmations to wait for?
+        if (confirmationNumber === 12) {
+          let message = 'Closed objection for variable: ' + this.state.variableName + ', to value: ' + this.state.proposedValue + '). Thank you!';
+          NotificationManager.remove({id: 301});
+          NotificationManager.success(message, 'Transaction completed');
+          this.checkObjection();
+        }
+      })
+      .on('error', console.error);
+  }
+  checkObjection() {
+    this.state.contract.methods.ending_date().call().then(ending_date => {
+      this.setState ({
+        endingDate: ending_date.toString()
       });
+      // Get the objection.
+      if (ending_date > 0) {
+        this.state.contract.methods.currentObjectionId().call().then(objection_id => {
+          this.setState ({
+            currentObjectionId: objection_id.toString()
+          });
+          // Get the events in which users rejected the objection.
+          this.state.contract
+            .getPastEvents('UserHasRejected', {
+              filter: {objection_id: this.state.currentObjectionId},
+              fromBlock: 0,
+              toBlock: 'latest'})
+            .then(rejected => {
+              this.setState ({
+                usersHaveRejected: rejected
+              });
+              // Did the current user reject the objection?
+              rejected.forEach( (event) => {
+                if (event['returnValues']['user'] === this.context.web3.selectedAccount) {
+                  this.setState ({
+                    userHasRejected: true
+                  });
+                }
+              })
+            });
+        });
+      }
+    });
   }
   render() {
     return (
@@ -220,7 +272,6 @@ class Objection extends Component {
               variableName = { this.state.variableName }
               proposedValue = { this.state.proposedValue }
               currentJustification = { this.state.currentJustification }
-              objectionOpenFormSubmitted = { this.state.objectionOpenFormSubmitted }
             />
           </div>
         </div>

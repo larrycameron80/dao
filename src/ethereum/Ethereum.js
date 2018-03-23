@@ -22,8 +22,7 @@ class Ethereum extends Component {
     });
   }
   componentWillUnmount() {
-    console.log(this.filterLatestBlock);
-    //this.filterLatestBlock.stopWatching();
+    this.filterLatestBlock.stopWatching( () => {} );
   }
   // Helper to get user balance (ethereum).
   getUserBalance() {
