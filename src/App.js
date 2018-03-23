@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import logo from './assets/images/Talao.svg';
-import './App.css';
+import { NotificationContainer } from 'react-notifications';
 import Web3Wrapper from './web3wrapper/Web3Wrapper';
 import AppConnected from './AppConnected';
+import 'react-notifications/lib/notifications.css';
+import './App.css';
 
 class App extends Component {
   render() {
@@ -14,6 +16,7 @@ class App extends Component {
           </a>
           <h1 className="App-header-title">Talao</h1>
           <p>The first Ethereum-based Talents Autonomous Organization.</p>
+          <NotificationContainer />
         </header>
         <section className="App-main white">
           <Web3Wrapper>

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import './Token.css';
+import { NotificationManager } from 'react-notifications';
 import Button from '../ui/button/Button';
 import SendTokenForm from './SendTokenForm';
 import faQrcode from '@fortawesome/fontawesome-free-solid/faQrcode';
@@ -103,30 +104,41 @@ class Token extends Component {
       .send({from: this.context.web3.selectedAccount})
       .on('transactionHash', (hash) => {
         this.setState({
-          sendShow: false,
-          flashMessage: 'Send tokens: tx submitted (' + hash + ')'
+          sendShow: false
+        });
+        let message = 'Sending ' + this.state.sendAmount + ' ' + this.state.tokenSymbol + ' (transaction hash: ' + hash + ')';
+        NotificationManager.create({
+          id: 1,
+          type: 'info',
+          message: message,
+          title: 'Transaction submitted',
+          timeOut: 0,
         });
       })
       .on('receipt', (receipt) => {
-        let hash = receipt.events.Transfer.transactionHash;
         let to = receipt.events.Transfer.returnValues.to;
         let tokens_wei = receipt.events.Transfer.returnValues.value;
         let tokens = window.web3.utils.fromWei(tokens_wei);
-        this.setState({
-          flashMessage: 'Sending ' + tokens + ' ' + this.state.tokenSymbol + 's to ' + to + ' (tx: ' + hash + ')'
+        let message = 'Sending ' + tokens + ' ' + this.state.tokenSymbol + 's to ' + to;
+        NotificationManager.remove({id: 1});
+        NotificationManager.create({
+          id: 2,
+          type: 'info',
+          message: message,
+          title: 'Transaction received',
+          timeOut: 0,
         });
       })
       // TODO: Investigate: confirmationNumber goes up to 24 but it should not since no other block is mined locally.
       // It should go up to 12, one for each new mined block: https://web3js.readthedocs.io/en/1.0/web3-eth.html#sendtransaction
       .on('confirmation', (confirmationNumber, receipt) => {
-        if (confirmationNumber > 0) {
-          let hash = receipt.events.Transfer.transactionHash;
+        if (confirmationNumber === 1) {
           let to = receipt.events.Transfer.returnValues.to;
           let tokens_wei = receipt.events.Transfer.returnValues.value;
           let tokens = window.web3.utils.fromWei(tokens_wei);
-          this.setState({
-            flashMessage: 'You sent ' + tokens + ' ' + this.state.tokenSymbol + 's to ' + to + ' (tx: ' + hash + ')'
-          });
+          let message = 'You sent ' + tokens + ' ' + this.state.tokenSymbol + 's to ' + to;
+          NotificationManager.remove({id: 2});
+          NotificationManager.success(message, 'Transaction completed');
           this.updateUserBalance();
         }
       })

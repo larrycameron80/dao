@@ -40,3 +40,7 @@
   list-style-type: none;
   display: inline-block;
 }
+
+.notification-container .notification .notification-message .message {
+  word-wrap: break-word;
+}
