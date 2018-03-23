@@ -1,8 +1,13 @@
 # Talao DAO prototype: changelog
 
+## 0.6.0
+
++ NewObjection event + final notifications
++ Basic responsive cleanup
+
 ## 0.5.0
 
-+ Notifications
++ Notifications, taking advantage of the hybrid Web3 system with 1.0.0 and old version
 
 ## 0.4.0
 
@@ -11,7 +16,7 @@
 ## 0.3.0
 
 + Use a [custom version of react-web3 for Web3.JS 1.0.0-beta.N](https://github.com/guix77/react-web3/tree/talao) while waiting for PRs to get accepted on the web3-v1 branch
-+ Replace the old injected version of Web3.JS by the local version 1.0.0-beta.31
++ Replace the old injected version of Web3.JS by the local version 1.0.0-beta.31 and keep the old Web3 for certain cases
 + Rewrite the Web3.JS calls for Web3.JS 1.0.0 and take advantage of PromitEvent and such
 
 ## 0.2.5

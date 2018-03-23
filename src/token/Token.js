@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import './Token.css';
 import { NotificationManager } from 'react-notifications';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Button from '../ui/button/Button';
@@ -9,6 +8,7 @@ import faCopy from '@fortawesome/fontawesome-free-solid/faCopy';
 import faQrcode from '@fortawesome/fontawesome-free-solid/faQrcode';
 import faArrowRight from '@fortawesome/fontawesome-free-solid/faArrowRight';
 import QrCode from 'qrcode.react';
+import './Token.css';
 
 class Token extends Component {
   constructor (props) {

@@ -5,9 +5,11 @@ class Home extends Component {
   render() {
     return (
       <article className="Home">
-        <p>Quo cognito Constantius ultra mortalem modum exarsit ac nequo casu idem Gallus de futuris incertus agitare quaedam conducentia saluti suae per itinera conaretur, remoti sunt omnes de industria milites agentes in civitatibus perviis.</p>
-        <p>Principium autem unde latius se funditabat, emersit ex negotio tali. Chilo ex vicario et coniux eius Maxima nomine, questi apud Olybrium ea tempestate urbi praefectum, vitamque suam venenis petitam adseverantes inpetrarunt ut hi, quos suspectati sunt, ilico rapti conpingerentur in vincula, organarius Sericus et Asbolius palaestrita et aruspex Campensis.</p>
-        <p>Quare talis improborum consensio non modo excusatione amicitiae tegenda non est sed potius supplicio omni vindicanda est, ut ne quis concessum putet amicum vel bellum patriae inferentem sequi; quod quidem, ut res ire coepit, haud scio an aliquando futurum sit. Mihi autem non minori curae est, qualis res publica post mortem meam futura, quam qualis hodie sit.</p>
+        <h1>Welcome to the Talao DAO!</h1>
+        <p>This is a <strong>prototype</strong> of the Talao DAO.</p>
+        <p>As a member of the Talao DAO, if you want to change some parameters of the DAO, then you can submit Objections. For now, you can try here an extremely simple Objection.</p>
+        <p>More sophisticated Objections and other stuff will come soon. For more more information about Talao, please head to the <a href="https://ico.talao.io" target="_blank" rel="noopener noreferrer">Talao ICO website</a>.</p>
+        <p><em>Happy testing and reading!</em></p>
       </article>
     );
   }
