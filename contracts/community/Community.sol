@@ -10,10 +10,11 @@ import './token/TalaoToken.sol';
 
 /**
  * @title Community
- * @dev This contract details the TALAO communities.
+ * @dev This contract details a TALAO community.
  * @author Talao
  */
 contract Community is Ownable {
+
     // Community name.
     string public communityName;
 
@@ -54,7 +55,7 @@ contract Community is Ownable {
     event CommunitySubscription(address indexed freelancer, bool msg);
 
     /**
-    * @dev Create a community.
+    * @dev Community.
     * @param _token address The address of the token.
     * @param _name string Community name.
     * @param _comtype uint Open (0) or private (1) community.
