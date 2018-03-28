@@ -1,134 +1,134 @@
 /* TODO:
- *   [x] import `Owned` contract from open-zeppelin
- *   [x] `communityMembers` state variable should be bool map
- *   [ ] `communityState` should be renamed `active` and typed bool
- *   [ ] `communityType` should be either enum or bool (in which case renamed)
- *   [ ] `communityBalanceForVoting` is outdated
- *   [x] clean code
+ *   communityState should be renamed active and typed bool
+ *   communityType should be either enum or bool (in which case renamed)
+ *   communityBalanceForVoting is outdated
  */
-
-// pour prototypage only
-//
-// version 1.1
-// - suppession commentaires inutiles
-// - correction bufg compteur d array
-//
-// version 1.2
-// mise a jour des styles
-// ajout d une fcntion de transfere de token transferFunds
-// la fonction getdataforvoting est retirr�e, les data sont publiques donc accessibles avec un getter
-
 pragma solidity ^0.4.18;
 
-import "../../node_modules/zeppelin-solidity/contracts/ownership/Ownable.sol";
-import "./AdvancedToken.sol";
+import '../ownership/Ownable.sol';
+import './token/TalaoToken.sol';
 
-
+/**
+ * @title Community
+ * @dev This contract details the TALAO communities.
+ * @author Talao
+ */
 contract Community is Ownable {
-    string  public communityName;
-    uint    public communityState;                          // 0 inactif 1 actif
-    uint    public communityType;                           // 0 open, 1 private
-    address public communitySponsor;                        // if private community, address client
-    uint    public communityBalanceForVoting;               // balance for voting 10 => 10% token and 90% reputation
-    uint    public communityMinimumToken;                   // min tokrn to vote
-    uint    public communityMinimumReputation;              // min reputation to vote
-    uint    public communityJobCom;                         // x 1/10000 commission on job = 0 at bootstrap. 100 means 1%
-    uint    public communityMemberFees;                     // fees to join = 0 ;
+    // Community name.
+    string public communityName;
+
+    // Active or inactive community.
+    uint public communityState;
+
+    // Open (0) or private (1) community.
+    uint public communityType;
+
+    // Sponsor address if private community.
+    address public communitySponsor;
+
+    // Token percentage balance for voting in community (10 = 10% token, 90% reputation).
+    uint public communityBalanceForVoting;
+
+    // Minimum tokens to vote in community.
+    uint public communityMinimumToken;
+
+    // Minimum reputation to vote in community.
+    uint public communityMinimumReputation;
+
+    // x 1/10000 community commission on job = 0 at bootstrap. 100 means 1%.
+    uint public communityJobCom;
+
+    // Fees to join community (0 by default).
+    uint public communityMemberFees;
+
+    // Community members.
     mapping(address => bool) public members;
 
-    MyAdvancedToken public mytoken;
-    uint256 public communityTokenBalance;                        //  pour test
+    // Talao token.
+    TalaoToken public talaotoken;
 
+    // For test purposes.
+    uint256 public communityTokenBalance;
+
+    // Event: a freelancer joined a community.
     event CommunitySubscription(address indexed freelancer, bool msg);
 
-    function Community(address token, string name, uint comtype, uint balance, uint mintoken, uint minreputation, uint com, uint fees) public {
-        mytoken = MyAdvancedToken(token);
-        communityName = name;
-        communityType = comtype;
+    /**
+    * @dev Create a community.
+    * @param _token address The address of the token.
+    * @param _name string Community name.
+    * @param _comtype uint Open (0) or private (1) community.
+    * @param _balance uint Token percentage balance for voting in community (10 = 10% token, 90% reputation).
+    * @param _mintoken uint Minimum tokens to vote in community.
+    * @param _minreputation uint Minimum reputation to vote in community.
+    * @param _com uint x 1/10000 community commission on job = 0 at bootstrap. 100 means 1%.
+    * @param _fees uint Fees to join community (0 by default).
+    **/
+    function Community(address _token, string _name, uint _comtype, uint _balance, uint _mintoken, uint _minreputation, uint _com, uint _fees)
+        public
+    {
+        talaotoken = TalaoToken(_token);
+        communityName = _name;
+        communityType = _comtype;
         communityState = 1;
-        communityBalanceForVoting = balance;
-        communityMinimumToken = mintoken;
-        communityMinimumReputation = minreputation;
-        communityJobCom = com;
-        communityMemberFees = fees;
-        communityTokenBalance = mytoken.balanceOf(this);
+        communityBalanceForVoting = _balance;
+        communityMinimumToken = _mintoken;
+        communityMinimumReputation = _minreputation;
+        communityJobCom = _com;
+        communityMemberFees = _fees;
+        communityTokenBalance = talaotoken.balanceOf(this);
     }
 
-    function setupVotingRules(uint balance, uint token, uint reputation) public onlyOwner {
+    /**
+    * @dev Community voting rules.
+    * @param _balance uint Token percentage balance for voting in community (10 = 10% token, 90% reputation).
+    * @param _mintoken uint Minimum tokens to vote in community.
+    * @param _minreputation uint Minimum reputation to vote in community.
+    **/
+    function setupVotingRules(uint _balance, uint _mintoken, uint _minreputation)
+        public onlyOwner
+    {
         require(token != 0 && reputation != 0);
-        communityBalanceForVoting = balance;
-        communityMinimumToken = token;
-        communityMinimumReputation = reputation;
+        communityBalanceForVoting = _balance;
+        communityMinimumToken = _mintoken;
+        communityMinimumReputation = _minreputation;
     }
 
-    function joinCommunity() public {
+    /**
+    * @dev Join a community.
+    **/
+    function joinCommunity()
+        public
+    {
         members[msg.sender] = true;
         CommunitySubscription(msg.sender, true);
     }
 
     /**
-     * This removes one freelance from the community and updates the array CommunityMembers
-     */
-    function leaveCommunity() public {
-        if (!members[msg.sender])  // not a member
+    * @dev Leave a community.
+    **/
+    function leaveCommunity()
+        public
+    {
+        // Revert if not a member.
+        if (!members[msg.sender]) {
             revert();
-
+        }
         members[msg.sender] = false;
         CommunitySubscription(msg.sender, false);
     }
 
     /**
-     * this funciton transfers funds from Community
-     */
-    function transferFunds(address _to, uint256 amount) public onlyOwner returns(bool) {
-        require (amount <= mytoken.balanceOf(this));
-        mytoken.transfer(_to, amount);
-        return true;
-    }
-}
-//
-//
-// This contract deploys Community contracts
-//
-//
-//
-
-contract CommunityFabriq is Ownable {
-    MyAdvancedToken public mytoken;
-    Community public newcommunity;            // pour test
-
-    event CommunityListing(address community );
-
-    function CommunityFabriq (address token) public {
-        require (token != address(0x0));
-        mytoken = MyAdvancedToken(token);
-    }
-
-    /**
-     * anyone can call this method to create a new Community contract
-     * with the maker being the owner of this new contract
-     */
-    function createCommunityContract(string name,
-                            uint comtype,               // 0 open
-                            uint balance,               // % token/reputation
-                            uint mintoken,              // minimum token
-                            uint minreputation,         // minimum reputation
-                            uint com,                   // com on job
-                            uint fees)
-                            public onlyOwner returns (Community)
+    * @dev Transfers tokens from the Community.
+    * @param _to address Address to send the tokens to.
+    * @param _amount uint256 Amount of tokens to transfer.
+    **/
+    function transferFunds(address _to, uint256 _amount)
+        public onlyOwner
+        returns (bool)
     {
-        require (balance<=100);
-        require (minreputation <= 100);
-        newcommunity = new Community(mytoken, name, comtype, balance, mintoken, minreputation, com, fees);
-        newcommunity.transferOwnership(msg.sender);
-        CommunityListing(newcommunity);
-        return newcommunity;
-    }
-
-    /**
-     *     Prevents accidental sending of ether to the factory
-     */
-    function () public {
-        revert();
+        require (_amount <= talaotoken.balanceOf(this));
+        talaotoken.transfer(_to, _amount);
+        return true;
     }
 }
