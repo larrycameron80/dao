@@ -1,0 +1,13 @@
+.TokenSymbol {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.TokenSymbol svg {
+  width: 32px;
+  height: 32px;
+}
+
+.TokenSymbol svg {
+  fill: currentColor;
+}

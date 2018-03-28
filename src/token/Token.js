@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { NotificationManager } from 'react-notifications';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Button from '../ui/button/Button';
+import TokenSymbol from './TokenSymbol';
 import SendTokenForm from './SendTokenForm';
 import faCopy from '@fortawesome/fontawesome-free-solid/faCopy';
 import faQrcode from '@fortawesome/fontawesome-free-solid/faQrcode';
@@ -187,8 +188,8 @@ class Token extends Component {
         <div className="Token-token">
           <h2>{ 'My ' + this.state.tokenSymbol + 's' }</h2>
           <div className="green box">
-            <p className="big">
-              { this.state.userBalance + ' ' + this.state.tokenSymbol + 's' }
+            <p className="Token-token-balance big">
+              { this.state.userBalance + ' ' + this.state.tokenSymbol } <TokenSymbol />
             </p>
             <div className="Token-token-actions">
               <Button
