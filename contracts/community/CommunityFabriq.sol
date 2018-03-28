@@ -2,6 +2,7 @@ pragma solidity ^0.4.18;
 
 import '../ownership/Ownable.sol';
 import './token/TalaoToken.sol';
+import './Community.sol';
 
 /**
  * @title Community fabriq
