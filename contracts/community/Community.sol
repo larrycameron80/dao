@@ -58,7 +58,7 @@ contract Community is Ownable {
     * @param _mintoken uint Minimum tokens to vote in community.
     * @param _minreputation uint Minimum reputation to vote in community.
     * @param _com uint x 1/10000 community commission on job = 0 at bootstrap. 100 means 1%.
-    * @param _fees uint Fees to join community (0 by default).
+    * @param _fees uint Fees to join community.
     **/
     function Community(address _token, string _name, uint _comtype, uint _balance, uint _mintoken, uint _minreputation, uint _com, uint _fees)
         public
