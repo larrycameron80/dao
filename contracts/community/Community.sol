@@ -97,7 +97,7 @@ contract Community is Ownable {
         public
     {
         members[msg.sender] = true;
-        CommunitySubscription(msg.sender, true);
+        emit CommunitySubscription(msg.sender, true);
     }
 
     /**
@@ -111,7 +111,7 @@ contract Community is Ownable {
             revert();
         }
         members[msg.sender] = false;
-        CommunitySubscription(msg.sender, false);
+        emit CommunitySubscription(msg.sender, false);
     }
 
     /**
