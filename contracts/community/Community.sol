@@ -1,9 +1,4 @@
-/* TODO:
- *   communityState should be renamed active and typed bool
- *   communityType should be either enum or bool (in which case renamed)
- *   communityBalanceForVoting is outdated
- */
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 import '../ownership/Ownable.sol';
 import './token/TalaoToken.sol';
@@ -89,7 +84,7 @@ contract Community is Ownable {
     function setupVotingRules(uint _balance, uint _mintoken, uint _minreputation)
         public onlyOwner
     {
-        require(token != 0 && reputation != 0);
+        require(_mintoken != 0 && _minreputation != 0);
         communityBalanceForVoting = _balance;
         communityMinimumToken = _mintoken;
         communityMinimumReputation = _minreputation;
