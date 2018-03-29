@@ -4,8 +4,10 @@ import './AppConnected.css';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import Home from './home/Home';
 import faHome from '@fortawesome/fontawesome-free-solid/faHome';
+import Communities from './community/Communities';
 import Objection from './objection/Objection';
 import Account from './account/Account';
+import faUsers from '@fortawesome/fontawesome-free-solid/faUsers';
 import faCog from '@fortawesome/fontawesome-free-solid/faCog';
 import faUser from '@fortawesome/fontawesome-free-solid/faUser';
 
@@ -21,6 +23,9 @@ class AppConnected extends Component {
                   <Link to="/" className="hvr-shutter-in-horizontal"><FontAwesomeIcon icon={ faHome } /></Link>
                 </li>
                 <li>
+                  <Link to="/communities"><FontAwesomeIcon icon={ faUsers } /> Communities</Link>
+                </li>
+                <li>
                   <Link to="/objections"><FontAwesomeIcon icon={ faCog } /> Objections</Link>
                 </li>
                 <li>
@@ -29,6 +34,7 @@ class AppConnected extends Component {
               </ul>
             </nav>
             <Route exact path="/" component={ Home } />
+            <Route path="/communities" component={ Communities } />
             <Route path="/objections" component={ Objection } />
             <Route path="/account" component={ Account } />
           </div>
