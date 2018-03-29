@@ -1,14 +1,10 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.21;
 
 import '../ownership/Ownable.sol';
 import './token/TalaoToken.sol';
 import './Community.sol';
 
-/**
- * @title Community fabriq
- * @dev This contract deploys Community contracts.
- * @author Talao
- */
+
 contract CommunityFabriq is Ownable {
 
     TalaoToken public talaotoken;
@@ -23,8 +19,8 @@ contract CommunityFabriq is Ownable {
     function CommunityFabriq (address _token)
         public
     {
-        require (token != address(0x0));
-        talaotoken = TalaoToken(token);
+        require (_token != address(0x0));
+        talaotoken = TalaoToken(_token);
     }
 
     /**
@@ -37,15 +33,16 @@ contract CommunityFabriq is Ownable {
     * @param _com uint x 1/10000 community commission on job = 0 at bootstrap. 100 means 1%.
     * @param _fees uint Fees to join community (0 by default).
     **/
-    function createCommunityContract(string _name, uint _comtype,  uint _balance, uint _mintoken, uint _minreputation, uint _com, uint _fees)
+    function createCommunityContract(string _name, uint _comtype, uint _balance, uint _mintoken, uint _minreputation, uint _com, uint _fees)
         public onlyOwner
         returns (Community)
     {
         require (_balance <= 100);
         require (_minreputation <= 100);
+        Community newcommunity;
         newcommunity = new Community(talaotoken, _name, _comtype, _balance, _mintoken, _minreputation, _com, _fees);
         newcommunity.transferOwnership(msg.sender);
-        CommunityListing(newcommunity);
+        emit CommunityListing(newcommunity);
         return newcommunity;
     }
 
