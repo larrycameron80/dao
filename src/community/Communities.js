@@ -1,31 +1,51 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { NotificationManager } from 'react-notifications';
-import Button from '../ui/button/Button';
+import CommunitiesList from './CommunitiesList';
 import './Communities.css';
 
 class Communities extends Component {
   constructor (props) {
     super (props);
 
-    const contract = new window.web3.eth.Contract (
+    const contractFabriq = new window.web3.eth.Contract (
       JSON.parse(process.env.REACT_APP_COMMUNITY_FABRIQ_ABI),
       process.env.REACT_APP_COMMUNITY_FABRIQ_ADDRESS
     );
 
     this.state = {
-      contract: contract,
-      communities: null
+      contractFabriq: contractFabriq,
+      communities: []
     }
   }
   componentDidMount() {
-  }
-  componentWillUnmount() {
+    // Get communities contracts.
+    this.state.contractFabriq.getPastEvents('CommunityListing', {}, {fromBlock: 0, toBlock: 'latest'}).then( events => {
+      let communities = [];
+      events.forEach( (event) => {
+        let address = event['returnValues']['community'];
+        let contract = new window.web3.eth.Contract (
+          JSON.parse(process.env.REACT_APP_COMMUNITY_ABI),
+          address);
+        // Get community name.
+        contract.methods.communityName().call().then(name => {
+          communities.push({
+            address: address,
+            contract: contract,
+            name: name
+          })
+          this.setState ({
+            communities: communities
+          });
+        });
+      });
+    });
   }
   render() {
     return (
       <div className="Communities">
-        <p>Communities</p>
+        <h1>Communities</h1>
+        <p>Talents can join Talao communities and get involved in their management.</p>
+        <CommunitiesList communities = { this.state.communities } />
       </div>
     );
   }

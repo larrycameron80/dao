@@ -188,9 +188,9 @@ class Token extends Component {
         <div className="Token-token">
           <h2>{ 'My ' + this.state.tokenSymbol + 's' }</h2>
           <div className="green box">
-            <p className="Token-token-balance big">
+            <div className="Token-token-balance big">
               { this.state.userBalance + ' ' + this.state.tokenSymbol } <TokenSymbol />
-            </p>
+            </div>
             <div className="Token-token-actions">
               <Button
                 value = { 'Send ' + this.state.tokenSymbol + 's' }
