@@ -7,19 +7,19 @@ class Communities extends Component {
   constructor (props) {
     super (props);
 
-    const contractFabriq = new window.web3.eth.Contract (
-      JSON.parse(process.env.REACT_APP_COMMUNITY_FABRIQ_ABI),
-      process.env.REACT_APP_COMMUNITY_FABRIQ_ADDRESS
+    const contractFactory= new window.web3.eth.Contract (
+      JSON.parse(process.env.REACT_APP_COMMUNITY_FACTORY_ABI),
+      process.env.REACT_APP_COMMUNITY_FACTORY_ADDRESS
     );
 
     this.state = {
-      contractFabriq: contractFabriq,
+      contractFactory: contractFactory,
       communities: []
     }
   }
   componentDidMount() {
     // Get communities contracts.
-    this.state.contractFabriq.getPastEvents('CommunityListing', {}, {fromBlock: 0, toBlock: 'latest'}).then( events => {
+    this.state.contractFactory.getPastEvents('CommunityListing', {}, {fromBlock: 0, toBlock: 'latest'}).then( events => {
       let communities = [];
       events.forEach( (event) => {
         let address = event['returnValues']['community'];
@@ -28,13 +28,19 @@ class Communities extends Component {
           address);
         // Get community name.
         contract.methods.communityName().call().then(name => {
-          communities.push({
-            address: address,
-            contract: contract,
-            name: name
-          })
-          this.setState ({
-            communities: communities
+          contract.methods.communityIsActive().call().then(isActive => {
+            contract.methods.communityIsPrivate().call().then(isPrivate => {
+              communities.push({
+                address: address,
+                contract: contract,
+                name: name,
+                isActive: isActive,
+                isPrivate: isPrivate
+              });
+              this.setState ({
+                communities: communities
+              });
+            });
           });
         });
       });
