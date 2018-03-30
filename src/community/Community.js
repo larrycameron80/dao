@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { NotificationManager } from 'react-notifications';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Button from '../ui/button/Button';
-import faCopy from '@fortawesome/fontawesome-free-solid/faCopy';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faLock from '@fortawesome/fontawesome-free-solid/faLock';
+import faLockOpen from '@fortawesome/fontawesome-free-solid/faLockOpen';
+import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import './Community.css';
 
 class Community extends Component {
@@ -22,6 +23,7 @@ class Community extends Component {
       isActive: null,
       isPrivate: null,
       sponsor: null,
+      sponsored: false,
       balanceToVote: null,
       minimumTokensToVote: null,
       minimumReputationToVote: null,
@@ -51,9 +53,12 @@ class Community extends Component {
     });
     // Sponsor address if private community.
     this.state.contract.methods.communitySponsor().call().then(sponsor => {
-      this.setState ({
-        sponsor: sponsor
-      });
+      if (sponsor !== '0x0000000000000000000000000000000000000000') {
+        this.setState ({
+          sponsor: sponsor,
+          isSponsored: true
+        });
+      }
     });
     // Token percentage balance to vote in community (10 = 10% token, 90% reputation). From 1 to 100.
     this.state.contract.methods.communityBalanceToVote().call().then(balance => {
@@ -89,21 +94,30 @@ class Community extends Component {
   render() {
     return (
       <div className = "Community">
-        <h1>{ this.state.name + ' community'}</h1>
+        <h1>
+          { this.state.name + ' ' }
+          {/* { this.state.isActive && <FontAwesomeIcon icon = { faCheck } /> } */}
+          { this.state.isPrivate && <FontAwesomeIcon icon = { faLock } /> }
+          { !this.state.isPrivate && <FontAwesomeIcon icon = { faLockOpen } /> }
+        </h1>
         <div className = "Community-info blue box">
+          {
+            this.state.isSponsored &&
+            <div className = "Community-info-sponsor">
+              <h2>Sponsored by</h2>
+              <a
+                href={ 'https://ropsten.etherscan.io/address/' + this.state.sponsor }
+                target="_blank" rel="noopener noreferrer">
+                  { this.state.sponsor }
+              </a>
+            </div>
+          }
           <h2>Address</h2>
           <a
             href={ 'https://ropsten.etherscan.io/address/' + this.state.address }
             target="_blank" rel="noopener noreferrer">
               { this.state.address }
           </a>
-          <CopyToClipboard
-            text = { this.state.address }
-            onCopy = { () => NotificationManager.success('Copied to clipboard') }>
-            <Button
-              value = "copy"
-              icon = { faCopy } />
-          </CopyToClipboard>
           <h2>Parameters</h2>
           <ul>
             <li>
@@ -123,13 +137,6 @@ class Community extends Component {
             </li>
           </ul>
         </div>
-        <p>
-          (Debug:
-            Active or inactive: { this.state.isActive } /
-            Open or private: { this.state.isPrivate } /
-            Sponsor: { this.state.sponsor }
-          )
-        </p>
       </div>
     );
   }
