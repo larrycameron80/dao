@@ -5,6 +5,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import Home from './home/Home';
 import faHome from '@fortawesome/fontawesome-free-solid/faHome';
 import Communities from './community/Communities';
+import Community from './community/Community';
 import Objection from './objection/Objection';
 import Account from './account/Account';
 import faUsers from '@fortawesome/fontawesome-free-solid/faUsers';
@@ -33,10 +34,11 @@ class AppConnected extends Component {
                 </li>
               </ul>
             </nav>
-            <Route exact path="/" component={ Home } />
-            <Route path="/communities" component={ Communities } />
-            <Route path="/objections" component={ Objection } />
-            <Route path="/account" component={ Account } />
+            <Route exact path = "/" component = { Home } />
+            <Route path = "/communities" component = { Communities } />
+            <Route path = "/community/:communityAddress" component = { Community } />
+            <Route path = "/objections" component = { Objection } />
+            <Route path = "/account" component = { Account } />
           </div>
         </Router>
       </div>

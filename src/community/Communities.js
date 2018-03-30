@@ -22,7 +22,6 @@ class Communities extends Component {
     this.state.contractFabriq.getPastEvents('CommunityListing', {}, {fromBlock: 0, toBlock: 'latest'}).then( events => {
       let communities = [];
       events.forEach( (event) => {
-        console.log(event);
         let address = event['returnValues']['community'];
         let contract = new window.web3.eth.Contract (
           JSON.parse(process.env.REACT_APP_COMMUNITY_ABI),

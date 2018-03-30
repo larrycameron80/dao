@@ -1,5 +1,9 @@
 # Talao DAO prototype: changelog
 
+## 0.7.0
+
++ Communities
+
 ## 0.6.0
 
 + NewObjection event + final notifications
