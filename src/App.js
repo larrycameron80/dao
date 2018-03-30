@@ -14,8 +14,6 @@ class App extends Component {
           <a href="/">
             <img src={ logo } className="App-header-logo" alt="logo" />
           </a>
-          <h1 className="App-header-title">Talao</h1>
-          <p></p>
           <NotificationContainer />
         </header>
         <section className="App-main white">
