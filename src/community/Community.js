@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Button from '../ui/button/Button';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faLock from '@fortawesome/fontawesome-free-solid/faLock';
 import faLockOpen from '@fortawesome/fontawesome-free-solid/faLockOpen';
-import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import './Community.css';
 
 class Community extends Component {
@@ -96,7 +94,6 @@ class Community extends Component {
       <div className = "Community">
         <h1>
           { this.state.name + ' ' }
-          {/* { this.state.isActive && <FontAwesomeIcon icon = { faCheck } /> } */}
           { this.state.isPrivate && <FontAwesomeIcon icon = { faLock } /> }
           { !this.state.isPrivate && <FontAwesomeIcon icon = { faLockOpen } /> }
         </h1>
