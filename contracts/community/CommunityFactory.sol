@@ -5,7 +5,7 @@ import './token/TalaoToken.sol';
 import './Community.sol';
 
 
-contract CommunityFabriq is Ownable {
+contract CommunityFactory is Ownable {
 
     TalaoToken public talaotoken;
 
@@ -13,10 +13,10 @@ contract CommunityFabriq is Ownable {
     event CommunityListing (address community);
 
     /**
-    * @dev Community fabriq.
+    * @dev Community factory.
     * @param _token address The address of the token.
     **/
-    function CommunityFabriq (address _token)
+    function CommunityFactory (address _token)
         public
     {
         require (_token != address(0x0));
