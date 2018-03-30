@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { NotificationManager } from 'react-notifications';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Button from '../ui/button/Button';
-import faCopy from '@fortawesome/fontawesome-free-solid/faCopy';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faLock from '@fortawesome/fontawesome-free-solid/faLock';
+import faLockOpen from '@fortawesome/fontawesome-free-solid/faLockOpen';
+import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import './Community.css';
 
 class Community extends Component {
@@ -19,14 +20,15 @@ class Community extends Component {
       contract: contract,
       address: this.props.match.params.communityAddress,
       name: null,
-      active: null,
-      private: null,
+      isActive: null,
+      isPrivate: null,
       sponsor: null,
-      balanceForVoting: null,
-      minToken: null,
-      minReputation: null,
-      commission: null,
-      fee: null,
+      sponsored: false,
+      balanceToVote: null,
+      minimumTokensToVote: null,
+      minimumReputationToVote: null,
+      jobCommission: null,
+      joinFee: null,
       members: null
     }
   }
@@ -37,97 +39,104 @@ class Community extends Component {
         name: name
       });
     });
-    // Active or inactive community.
-    this.state.contract.methods.communityState().call().then(active => {
+    // Active community?
+    this.state.contract.methods.communityIsActive().call().then(isActive => {
       this.setState ({
-        active: active
+        isActive: isActive
       });
     });
-    // Open (0) or private (1) community.
-    this.state.contract.methods.communityType().call().then(type => {
+    // Private community?
+    this.state.contract.methods.communityIsPrivate().call().then(isPrivate => {
       this.setState ({
-        type: type
+        isPrivate: isPrivate
       });
     });
     // Sponsor address if private community.
     this.state.contract.methods.communitySponsor().call().then(sponsor => {
+      if (sponsor !== '0x0000000000000000000000000000000000000000') {
+        this.setState ({
+          sponsor: sponsor,
+          isSponsored: true
+        });
+      }
+    });
+    // Token percentage balance to vote in community (10 = 10% token, 90% reputation). From 1 to 100.
+    this.state.contract.methods.communityBalanceToVote().call().then(balance => {
       this.setState ({
-        sponsor: sponsor
+        balanceToVote: balance
       });
     });
-    // Token percentage balance for voting in community (10 = 10% token, 90% reputation).
-    this.state.contract.methods.communityBalanceForVoting().call().then(balanceForVoting => {
+    // Minimum tokens to vote in community. From 1 to 100.
+    this.state.contract.methods.communityMinimumTokensToVote().call().then(minimumTokensToVote => {
       this.setState ({
-        balanceForVoting: balanceForVoting
+        minimumTokensToVote: minimumTokensToVote
       });
     });
-    // Minimum tokens to vote in community.
-    this.state.contract.methods.communityMinimumToken().call().then(minToken => {
+    // Minimum reputation to vote in community. From 1 to 100.
+    this.state.contract.methods.communityMinimumReputationToVote().call().then(minimumReputationToVote => {
       this.setState ({
-        minToken: minToken
+        minimumReputationToVote: minimumReputationToVote
       });
     });
-    // Minimum reputation to vote in community.
-    this.state.contract.methods.communityMinimumReputation().call().then(minReputation => {
+    // (Community commission on job) / 100. 100 means 1%. From 0 to 10000.
+    this.state.contract.methods.communityJobCommission().call().then(jobCommission => {
       this.setState ({
-        minReputation: minReputation
+        jobCommission: jobCommission
       });
     });
-    // x 1/10000 community commission on job = 0 at bootstrap. 100 means 1%.
-    this.state.contract.methods.communityJobCom().call().then(commission => {
+    // Fee to join community.
+    this.state.contract.methods.communityJoinFee().call().then(joinFee => {
       this.setState ({
-        commission: commission
-      });
-    });
-    // Fee to join community (0 by default).
-    this.state.contract.methods.communityMemberFees().call().then(fee => {
-      this.setState ({
-        fee: fee
+        joinFee: joinFee
       });
     });
   }
   render() {
     return (
       <div className = "Community">
-        <h1>{ this.state.name + ' community'}</h1>
+        <h1>
+          { this.state.name + ' ' }
+          {/* { this.state.isActive && <FontAwesomeIcon icon = { faCheck } /> } */}
+          { this.state.isPrivate && <FontAwesomeIcon icon = { faLock } /> }
+          { !this.state.isPrivate && <FontAwesomeIcon icon = { faLockOpen } /> }
+        </h1>
         <div className = "Community-info blue box">
+          {
+            this.state.isSponsored &&
+            <div className = "Community-info-sponsor">
+              <h2>Sponsored by</h2>
+              <a
+                href={ 'https://ropsten.etherscan.io/address/' + this.state.sponsor }
+                target="_blank" rel="noopener noreferrer">
+                  { this.state.sponsor }
+              </a>
+            </div>
+          }
+          <h2>Address</h2>
           <a
             href={ 'https://ropsten.etherscan.io/address/' + this.state.address }
             target="_blank" rel="noopener noreferrer">
               { this.state.address }
           </a>
-          <CopyToClipboard
-            text = { this.state.address }
-            onCopy = { () => NotificationManager.success('Copied to clipboard') }>
-            <Button
-              value = "copy"
-              icon = { faCopy } />
-          </CopyToClipboard>
+          <h2>Parameters</h2>
           <ul>
             <li>
-              Balance for voting: { this.state.balanceForVoting }% tokens / { 100 - this.state.balanceForVoting }% reputation
+              Balance to vote: { this.state.balanceToVote }% tokens / { 100 - this.state.balanceToVote }% reputation
             </li>
             <li>
-              Minimum tokens to vote: { this.state.minToken } tokens
+              Minimum tokens to vote: { this.state.minimumTokensToVote } tokens
             </li>
             <li>
-              Minimum reputation to vote: { this.state.minReputation }
+              Minimum reputation to vote: { this.state.minimumReputationToVote }
             </li>
             <li>
-              Community commission on jobs: { this.state.commission / 100 }%
+              Community commission on jobs: { this.state.jobCommission / 100 }%
             </li>
             <li>
-              Fee to join: { this.state.fee } tokens
+              Fee to join: { this.state.joinFee } tokens
             </li>
           </ul>
         </div>
-        <p>
-          (Debug:
-            Active or inactive: { this.state.active } /
-            Open or private: { this.state.type } /
-            Sponsor: { this.state.sponsor }
-          )
-        </p>
       </div>
     );
   }
