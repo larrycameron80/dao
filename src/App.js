@@ -15,7 +15,7 @@ class App extends Component {
             <img src={ logo } className="App-header-logo" alt="logo" />
           </a>
           <h1 className="App-header-title">Talao</h1>
-          <p>The first Ethereum-based Talent Autonomous Organization.</p>
+          <p>This is a prototype => all parameters and blockchain values are fictive.</p>
           <NotificationContainer />
         </header>
         <section className="App-main white">
@@ -24,7 +24,7 @@ class App extends Component {
           </Web3Wrapper>
         </section>
         <footer className="App-footer green">
-          <p>Talao DAO prototype v0.7.0</p>
+          <p>Talao DAO prototype v0.7.0.</p>
           <ul className="App-footer-links">
             <li><a href="https://github.com/TalaoDAO" target="_blank" rel="noopener noreferrer">GitHub</a></li>
             <li><a href="https://ico.talao.io" target="_blank" rel="noopener noreferrer">The Talao ICO</a></li>
