@@ -70,7 +70,7 @@ contract BasicToken is ERC20Basic {
     // SafeMath.sub will throw if there is not enough balance.
     balances[msg.sender] = balances[msg.sender].sub(_value);
     balances[_to] = balances[_to].add(_value);
-    Transfer(msg.sender, _to, _value);
+    emit Transfer(msg.sender, _to, _value);
     return true;
   }
 
@@ -126,7 +126,7 @@ contract StandardToken is ERC20, BasicToken {
     balances[_from] = balances[_from].sub(_value);
     balances[_to] = balances[_to].add(_value);
     allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
-    Transfer(_from, _to, _value);
+    emit Transfer(_from, _to, _value);
     return true;
   }
 
@@ -142,7 +142,7 @@ contract StandardToken is ERC20, BasicToken {
    */
   function approve(address _spender, uint256 _value) public returns (bool) {
     allowed[msg.sender][_spender] = _value;
-    Approval(msg.sender, _spender, _value);
+    emit Approval(msg.sender, _spender, _value);
     return true;
   }
 
@@ -168,7 +168,7 @@ contract StandardToken is ERC20, BasicToken {
    */
   function increaseApproval(address _spender, uint _addedValue) public returns (bool) {
     allowed[msg.sender][_spender] = allowed[msg.sender][_spender].add(_addedValue);
-    Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
+    emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
     return true;
   }
 
@@ -189,7 +189,7 @@ contract StandardToken is ERC20, BasicToken {
     } else {
       allowed[msg.sender][_spender] = oldValue.sub(_subtractedValue);
     }
-    Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
+    emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
     return true;
   }
 
@@ -233,7 +233,7 @@ contract Ownable {
    */
   function transferOwnership(address newOwner) public onlyOwner {
     require(newOwner != address(0));
-    OwnershipTransferred(owner, newOwner);
+    emit OwnershipTransferred(owner, newOwner);
     owner = newOwner;
   }
 
@@ -269,8 +269,8 @@ contract MintableToken is StandardToken, Ownable {
   function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
     totalSupply = totalSupply.add(_amount);
     balances[_to] = balances[_to].add(_amount);
-    Mint(_to, _amount);
-    Transfer(address(0), _to, _amount);
+    emit Mint(_to, _amount);
+    emit Transfer(address(0), _to, _amount);
     return true;
   }
 
@@ -280,7 +280,7 @@ contract MintableToken is StandardToken, Ownable {
    */
   function finishMinting() onlyOwner canMint public returns (bool) {
     mintingFinished = true;
-    MintFinished();
+    emit MintFinished();
     return true;
   }
 }
@@ -470,7 +470,7 @@ contract TalaoToken is MintableToken {
       amount = msg.value.mul(marketplace.unitPrice).div(marketplace.buyPrice);
       require(balanceOf(this).sub(totalDeposit) >= amount);
       _transfer(this, msg.sender, amount);
-      TalaoBought(msg.sender, amount, marketplace.buyPrice, marketplace.unitPrice);
+      emit TalaoBought(msg.sender, amount, marketplace.buyPrice, marketplace.unitPrice);
       return amount;
   }
 
@@ -488,7 +488,7 @@ contract TalaoToken is MintableToken {
       super.transfer(this, amount);
       revenue = amount.mul(marketplace.sellPrice).div(marketplace.unitPrice);
       msg.sender.transfer(revenue);
-      TalaoSold(msg.sender, amount, marketplace.sellPrice, marketplace.unitPrice);
+      emit TalaoSold(msg.sender, amount, marketplace.sellPrice, marketplace.unitPrice);
       return revenue;
   }
 
@@ -535,11 +535,11 @@ contract TalaoToken is MintableToken {
   {
       require(AccessAllowance[msg.sender][msg.sender].clientAgreement==false);
       if (price>vaultDeposit) {
-          Vault(msg.sender, msg.sender, 2);
+          emit Vault(msg.sender, msg.sender, 2);
           return;
       }
       if (balanceOf(msg.sender)<vaultDeposit) {
-          Vault(msg.sender, msg.sender,3);
+          emit Vault(msg.sender, msg.sender,3);
           return;
       }
       Data[msg.sender].accessPrice=price;
@@ -548,7 +548,7 @@ contract TalaoToken is MintableToken {
       Data[msg.sender].userDeposit=vaultDeposit;
       Data[msg.sender].sharingPlan=100;
       AccessAllowance[msg.sender][msg.sender].clientAgreement=true;
-      Vault(msg.sender, msg.sender, 1);
+      emit Vault(msg.sender, msg.sender, 1);
   }
 
   /**
@@ -564,7 +564,7 @@ contract TalaoToken is MintableToken {
       AccessAllowance[msg.sender][msg.sender].clientAgreement=false;
       totalDeposit=totalDeposit.sub(Data[msg.sender].userDeposit);
       Data[msg.sender].sharingPlan=0;
-      Vault(msg.sender, msg.sender, 0);
+      emit Vault(msg.sender, msg.sender, 0);
   }
 
   /**
@@ -588,7 +588,7 @@ contract TalaoToken is MintableToken {
 
       balances[_from] = balances[_from].sub(_value);
       balances[_to] = balances[_to].add(_value);
-      Transfer(_from, _to, _value);
+      emit Transfer(_from, _to, _value);
       return true;
   }
 
@@ -606,11 +606,11 @@ contract TalaoToken is MintableToken {
       require(newplan<=100);
       require(AccessAllowance[msg.sender][msg.sender].clientAgreement==true);
       AccessAllowance[Data[msg.sender].appointedAgent][msg.sender].clientAgreement=false;
-      Vault(Data[msg.sender].appointedAgent, msg.sender, 4);
+      emit Vault(Data[msg.sender].appointedAgent, msg.sender, 4);
       Data[msg.sender].appointedAgent=newagent;
       Data[msg.sender].sharingPlan=newplan;
       AccessAllowance[newagent][msg.sender].clientAgreement=true;
-      Vault(newagent, msg.sender, 5);
+      emit Vault(newagent, msg.sender, 5);
   }
 
   /**
@@ -639,7 +639,7 @@ contract TalaoToken is MintableToken {
       require(AccessAllowance[freelance][freelance].clientAgreement==true);
       require(AccessAllowance[msg.sender][freelance].clientAgreement!=true);
       if (balanceOf(msg.sender)<Data[freelance].accessPrice){
-          Vault(msg.sender, freelance, 7);
+          emit Vault(msg.sender, freelance, 7);
           return false;
       }
       uint256 freelance_share = Data[freelance].accessPrice.mul(Data[freelance].sharingPlan).div(100);
@@ -648,7 +648,7 @@ contract TalaoToken is MintableToken {
       super.transfer(Data[freelance].appointedAgent, agent_share);
       AccessAllowance[msg.sender][freelance].clientAgreement=true;
       AccessAllowance[msg.sender][freelance].clientDate=block.number;
-      Vault(msg.sender, freelance, 6);
+      emit Vault(msg.sender, freelance, 6);
       return true;
   }
 
