@@ -678,6 +678,8 @@ contract TalaoToken is MintableToken {
 
 }
 
+
+
 /**
  * @title Community
  * @dev This contract details a TALAO community.
@@ -685,38 +687,38 @@ contract TalaoToken is MintableToken {
  */
 contract Community is Ownable {
 
+    // Talao token.
+    TalaoToken public talaotoken;
+
     // Community name.
     string public communityName;
 
-    // Active or inactive community.
-    uint public communityState;
+    // Active community?
+    bool public communityIsActive;
 
-    // Open (0) or private (1) community.
-    uint public communityType;
+    // Private community?
+    bool public communityIsPrivate;
 
     // Sponsor address if private community.
     address public communitySponsor;
 
-    // Token percentage balance for voting in community (10 = 10% token, 90% reputation).
-    uint public communityBalanceForVoting;
+    // Token percentage balance to vote in community (10 = 10% token, 90% reputation). From 1 to 100.
+    uint public communityBalanceToVote;
 
-    // Minimum tokens to vote in community.
-    uint public communityMinimumToken;
+    // Minimum tokens to vote in community From 1 to 100.
+    uint public communityMinimumTokensToVote;
 
-    // Minimum reputation to vote in community.
-    uint public communityMinimumReputation;
+    // Minimum reputation to vote in community. From 1 to 100.
+    uint public communityMinimumReputationToVote;
 
-    // x 1/10000 community commission on job = 0 at bootstrap. 100 means 1%.
-    uint public communityJobCom;
+    // (Community commission on job) / 100. 100 means 1%. From 0 to 10000.
+    uint public communityJobCommission;
 
-    // Fees to join community (0 by default).
-    uint public communityMemberFees;
+    // Fee to join community.
+    uint public communityJoinFee;
 
     // Community members.
-    mapping(address => bool) public members;
-
-    // Talao token.
-    TalaoToken public talaotoken;
+    mapping(address => bool) public communityMembers;
 
     // For test purposes.
     uint256 public communityTokenBalance;
@@ -726,43 +728,52 @@ contract Community is Ownable {
 
     /**
     * @dev Community.
-    * @param _token address The address of the token.
+    * @param _token address The address of the Talao token.
     * @param _name string Community name.
-    * @param _comtype uint Open (0) or private (1) community.
-    * @param _balance uint Token percentage balance for voting in community (10 = 10% token, 90% reputation).
-    * @param _mintoken uint Minimum tokens to vote in community.
-    * @param _minreputation uint Minimum reputation to vote in community.
-    * @param _com uint x 1/10000 community commission on job = 0 at bootstrap. 100 means 1%.
-    * @param _fees uint Fees to join community (0 by default).
+    * @param _isprivate bool Private community?
+    * @param _sponsor address Sponsor address if private community.
+    * @param _balancetovote uint Token percentage balance to vote in community (10 = 10% token, 90% reputation). From 1 to 100.
+    * @param _mintokens uint Minimum tokens to vote in community. > 0
+    * @param _minreputation uint Minimum reputation to vote in community. From 1 to 100.
+    * @param _jobcommission uint (Community commission on job) / 100. 100 means 1%. From 0 to 10000.
+    * @param _joinfee uint Fee to join community.
     **/
-    function Community(address _token, string _name, uint _comtype, uint _balance, uint _mintoken, uint _minreputation, uint _com, uint _fees)
+    function Community(address _token, string _name, bool _isprivate, address _sponsor, uint _balancetovote, uint _mintokens, uint _minreputation, uint _jobcommission, uint _joinfee)
         public
     {
+        // By default, new communities are active.
+        communityIsActive = true;
+
+        // Params.
         talaotoken = TalaoToken(_token);
         communityName = _name;
-        communityType = _comtype;
-        communityState = 1;
-        communityBalanceForVoting = _balance;
-        communityMinimumToken = _mintoken;
-        communityMinimumReputation = _minreputation;
-        communityJobCom = _com;
-        communityMemberFees = _fees;
+        communityIsPrivate = _isprivate;
+        communitySponsor = _sponsor;
+        communityBalanceToVote = _balancetovote;
+        communityMinimumTokensToVote = _mintokens;
+        communityMinimumReputationToVote = _minreputation;
+        communityJobCommission = _jobcommission;
+        communityJoinFee = _joinfee;
+
+        // For test purposes.
         communityTokenBalance = talaotoken.balanceOf(this);
     }
 
     /**
     * @dev Community voting rules.
-    * @param _balance uint Token percentage balance for voting in community (10 = 10% token, 90% reputation).
-    * @param _mintoken uint Minimum tokens to vote in community.
-    * @param _minreputation uint Minimum reputation to vote in community.
+    * @param _balancetovote uint Token percentage balance for voting in community (10 = 10% token, 90% reputation). From 1 to 100.
+    * @param _mintokens uint Minimum tokens to vote in community. From 1 to 100.
+    * @param _minreputation uint Minimum reputation to vote in community (1 to 100)
     **/
-    function setupVotingRules(uint _balance, uint _mintoken, uint _minreputation)
+    function setupVotingRules(uint _balancetovote, uint _mintokens, uint _minreputation)
         public onlyOwner
     {
-        require(_mintoken != 0 && _minreputation != 0);
-        communityBalanceForVoting = _balance;
-        communityMinimumToken = _mintoken;
-        communityMinimumReputation = _minreputation;
+        require (_balancetovote > 0 && _balancetovote <= 100);
+        require (_mintokens > 0);
+        require (_minreputation > 0 && _minreputation <= 100);
+        communityBalanceToVote = _balancetovote;
+        communityMinimumTokensToVote = _mintokens;
+        communityMinimumReputationToVote = _minreputation;
     }
 
     /**
@@ -771,7 +782,7 @@ contract Community is Ownable {
     function joinCommunity()
         public
     {
-        members[msg.sender] = true;
+        communityMembers[msg.sender] = true;
         emit CommunitySubscription(msg.sender, true);
     }
 
@@ -782,10 +793,10 @@ contract Community is Ownable {
         public
     {
         // Revert if not a member.
-        if (!members[msg.sender]) {
+        if (!communityMembers[msg.sender]) {
             revert();
         }
-        members[msg.sender] = false;
+        communityMembers[msg.sender] = false;
         emit CommunitySubscription(msg.sender, false);
     }
 
@@ -804,6 +815,13 @@ contract Community is Ownable {
     }
 }
 
+
+
+/**
+ * @title Community factory.
+ * @dev Creates and manages community contracts.
+ * @author Talao
+ */
 contract CommunityFactory is Ownable {
 
     TalaoToken public talaotoken;
@@ -825,21 +843,24 @@ contract CommunityFactory is Ownable {
     /**
     * @dev Create a community.
     * @param _name string Community name.
-    * @param _comtype uint Open (0) or private (1) community.
-    * @param _balance uint Token percentage balance for voting in community (10 = 10% token, 90% reputation).
-    * @param _mintoken uint Minimum tokens to vote in community.
-    * @param _minreputation uint Minimum reputation to vote in community.
-    * @param _com uint x 1/10000 community commission on job = 0 at bootstrap. 100 means 1%.
-    * @param _fees uint Fees to join community (0 by default).
+    * @param _isprivate bool Private community?
+    * @param _sponsor address Sponsor address if private community.
+    * @param _balancetovote uint Token percentage balance to vote in community (10 = 10% token, 90% reputation). From 1 to 100.
+    * @param _mintokens uint Minimum tokens to vote in community. > 0
+    * @param _minreputation uint Minimum reputation to vote in community. From 1 to 100.
+    * @param _jobcommission uint (Community commission on job) / 100. 100 means 1%. From 0 to 10000.
+    * @param _joinfee uint Fee to join community.
     **/
-    function createCommunityContract(string _name, uint _comtype, uint _balance, uint _mintoken, uint _minreputation, uint _com, uint _fees)
+    function createCommunityContract(string _name, bool _isprivate, address _sponsor, uint _balancetovote, uint _mintokens, uint _minreputation, uint _jobcommission, uint _joinfee)
         public onlyOwner
         returns (Community)
     {
-        require (_balance <= 100);
-        require (_minreputation <= 100);
+        require (_balancetovote > 0 && _balancetovote <= 100);
+        require (_mintokens > 0);
+        require (_minreputation > 0 && _minreputation <= 100);
+        require (_jobcommission >= 0 && _jobcommission <= 10000);
         Community newcommunity;
-        newcommunity = new Community(talaotoken, _name, _comtype, _balance, _mintoken, _minreputation, _com, _fees);
+        newcommunity = new Community(talaotoken, _name, _isprivate, _sponsor, _balancetovote, _mintokens, _minreputation, _jobcommission, _joinfee);
         newcommunity.transferOwnership(msg.sender);
         emit CommunityListing(newcommunity);
         return newcommunity;

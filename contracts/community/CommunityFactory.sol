@@ -4,7 +4,11 @@ import '../ownership/Ownable.sol';
 import './token/TalaoToken.sol';
 import './Community.sol';
 
-
+/**
+ * @title Community factory.
+ * @dev Creates and manages community contracts.
+ * @author Talao
+ */
 contract CommunityFactory is Ownable {
 
     TalaoToken public talaotoken;
@@ -26,21 +30,24 @@ contract CommunityFactory is Ownable {
     /**
     * @dev Create a community.
     * @param _name string Community name.
-    * @param _comtype uint Open (0) or private (1) community.
-    * @param _balance uint Token percentage balance for voting in community (10 = 10% token, 90% reputation).
-    * @param _mintoken uint Minimum tokens to vote in community.
-    * @param _minreputation uint Minimum reputation to vote in community.
-    * @param _com uint x 1/10000 community commission on job = 0 at bootstrap. 100 means 1%.
-    * @param _fees uint Fees to join community (0 by default).
+    * @param _isprivate bool Private community?
+    * @param _sponsor address Sponsor address if private community.
+    * @param _balancetovote uint Token percentage balance to vote in community (10 = 10% token, 90% reputation). From 1 to 100.
+    * @param _mintokens uint Minimum tokens to vote in community. > 0
+    * @param _minreputation uint Minimum reputation to vote in community. From 1 to 100.
+    * @param _jobcommission uint (Community commission on job) / 100. 100 means 1%. From 0 to 10000.
+    * @param _joinfee uint Fee to join community.
     **/
-    function createCommunityContract(string _name, uint _comtype, uint _balance, uint _mintoken, uint _minreputation, uint _com, uint _fees)
+    function createCommunityContract(string _name, bool _isprivate, address _sponsor, uint _balancetovote, uint _mintokens, uint _minreputation, uint _jobcommission, uint _joinfee)
         public onlyOwner
         returns (Community)
     {
-        require (_balance <= 100);
-        require (_minreputation <= 100);
+        require (_balancetovote > 0 && _balancetovote <= 100);
+        require (_mintokens > 0);
+        require (_minreputation > 0 && _minreputation <= 100);
+        require (_jobcommission >= 0 && _jobcommission <= 10000);
         Community newcommunity;
-        newcommunity = new Community(talaotoken, _name, _comtype, _balance, _mintoken, _minreputation, _com, _fees);
+        newcommunity = new Community(talaotoken, _name, _isprivate, _sponsor, _balancetovote, _mintokens, _minreputation, _jobcommission, _joinfee);
         newcommunity.transferOwnership(msg.sender);
         emit CommunityListing(newcommunity);
         return newcommunity;
