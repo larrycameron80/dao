@@ -42,6 +42,11 @@
   background-color: #ffdc05; /* yellow */
 }
 
+.AppConnected-menu ul > li:nth-child(4) a {
+  color: white;
+  background-color: #232D55; /* blue-dark */
+}
+
 .AppConnected-menu ul > li a:hover {
   background-color: white;
   color: black;
