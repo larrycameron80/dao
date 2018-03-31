@@ -22,7 +22,7 @@ class App extends Component {
           </Web3Wrapper>
         </section>
         <footer className="App-footer green">
-          <p>This is a prototype only !!! Functionnalities are extremely limited for now, parameters and blockchain values are all fictive.</p>
+          <p>This is our work in progress prototype, stay tuned for new features added on a regular basis.</p>
           <ul className="App-footer-links">
             <li><a href="https://github.com/TalaoDAO" target="_blank" rel="noopener noreferrer">GitHub</a></li>
             <li><a href="https://ico.talao.io" target="_blank" rel="noopener noreferrer">The Talao ICO</a></li>
