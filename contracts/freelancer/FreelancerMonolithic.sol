@@ -56,9 +56,6 @@ contract Freelancer is Ownable {
         // Active user?
         bool userState;
 
-        // drupal name
-        string userName;
-
         // subscribion block
         int subscriptionBlock;
 
@@ -210,7 +207,7 @@ contract Freelancer is Ownable {
         return _accounts[drupalUserHash];
     }
 
-    function joinasafreelancer(bytes32 drupalUserHash, string name) public {
+    function joinasafreelancer(bytes32 drupalUserHash) public {
         if (_accounts[drupalUserHash] == msg.sender) {
             // Hash allready registered to address.
             accountCreated(msg.sender, drupalUserHash, 4);
@@ -228,7 +225,6 @@ contract Freelancer is Ownable {
             accountCreated(msg.sender, drupalUserHash, 0);
             freelancerData[msg.sender].subscriptionBlock = int(block.number);
             freelancerData[msg.sender].userState = true;
-            freelancerData[msg.sender].userName = name;
         }
     }
 }
