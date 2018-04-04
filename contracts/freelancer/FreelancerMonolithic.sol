@@ -43,7 +43,6 @@ contract Ownable {
 }
 
 
-
 /**
  * @title Freelancer
  * @dev This contract details a TALAO freelancer.
@@ -51,60 +50,57 @@ contract Ownable {
  */
 contract Freelancer is Ownable {
 
-    struct FreelancerInfo {
-
+    struct FreelancerInformation {
         // Active freelancer?
-        bool userIsActive;
-
-        // Block number when the freelancer subscribed.
-        int subscriptionBlock;
-
-        // Block number when the freelancer resigned.
-        int resignationBlock;
-
-        //
+        bool isActive;
+        // Blocked freelancer?
+        bool isBlocked;
     }
 
-    struct MemberReputation {
-
-        // Contribution rating of the freelancer, within the community.
-        int contributionRating;
-
-        // Contibution rating block, to compute decay (reputation decreases with time).
-        int contributionRatingBlock;
-
-        // Ratings by the clients.
+    struct FreelancerCommunityReputation {
+        // Ratings by the clients within a community.
         uint[4] clientsRatings;
-
-        // Ratings weights.
-        uint[4] ratingsWeights;
-
-        uint counter;
+        // Clients ratings weights within a community.
+        uint[4] clientsRatingsWeights;
+        // Pointer to loop through clients ratings and always keep 4.
+        uint clientsRatingsPointer;
+        // Community contribution score of the freelancer.
+        int contributionScore;
+        // Block number of the latest community contribution score update, to compute decay (reputation decreases with time).
+        uint lastContributionBlock;
     }
-
-    // Number of blocks in a Quarter.
-    int blocksPerQuarter;
 
     // Owner of the contract.
     address owner;
-
+    // Number of blocks in a Quarter.
+    int blocksPerQuarter;
     // Freelancers information.
-    mapping(address => FreelancerInfo) private freelancerData;
-
-    // Freelancers reputation by community. freelancer address => (community address => reputation).
-    mapping(address => mapping(address => MemberReputation)) private freelancerReputation;
-
+    mapping(address => FreelancerInformation) private freelancerInformation;
+    // Freelancers reputation by community. Freelancer address => (Community address => Reputation).
+    mapping(address => mapping(address => FreelancerCommunityReputation)) private freelancerCommunityReputation;
     // Mapping of Marketplace user hashes => Freelancer Ethereum addresses.
-    mapping(bytes32 => address) public marketplaceAccounts;
+    mapping(bytes32 => address) public marketplacesAccounts;
 
     // Event: a freelancer subscribed.
-    event FreelancerSubscribed(address indexed _freelancer, uint _blockNumber);
-
+    event FreelancerSubscribed(address indexed _freelancerAddress);
     // Event: a freelancer subscribed from a Marketplace.
-    event FreelancerSubscribedFromMarketPlace(address indexed _freelancerAddress, address indexed _marketplaceAddress, bytes32 indexed _marketplaceUserHash);
-    event RatingUpdated(address indexed user);
-    event ContributionUpdated(address indexed user);
-    event FreelancerFired(address indexed user);
+    event FreelancerSubscribedFromMarketPlace(
+        address indexed _freelancerAddress,
+        address indexed _marketplaceAddress,
+        bytes32 indexed _marketplaceUserHash
+    );
+    // Event: a freelancer has a new client rating, within a community.
+    event FreelancerNewClientRating(
+        address indexed _freelancerAddress,
+        address indexed _communityAddress,
+        uint _clientRating,
+        uint _clientRatingWeight
+    );
+    event FreelancerNewContribution(
+        address indexed _freelancerAddress,
+        address indexed _communityAddress,
+        int _contributionValue
+    );
 
     /**
     * @dev Init owner and delay for decay calculation.
@@ -124,11 +120,14 @@ contract Freelancer is Ownable {
     function joinDao()
         public
     {
-        // The user Ethereum address must not exist yet in the registry.
-        require(freelancerData[msg.sender].userIsActive == false);
-        freelancerData[msg.sender].userIsActive = true;
-        freelancerData[msg.sender].subscriptionBlock = int(block.number);
-        emit FreelancerSubscribed(msg.sender, block.number);
+        // The user Ethereum address must not exist in the registry.
+        require(freelancerInformation[msg.sender].isActive == false);
+        // The user Ethereum address must not be blocked in the registry.
+        require(freelancerInformation[msg.sender].isBlocked == false);
+
+        freelancerInformation[msg.sender].isActive = true;
+
+        emit FreelancerSubscribed(msg.sender);
     }
 
     /**
@@ -141,96 +140,135 @@ contract Freelancer is Ownable {
     {
         // Marketplace Ethereum address can't be empty.
         require (_marketplaceAddress != address(0x0));
-
         // Marketplace user hash must be 32 bytes.
         require (_marketplaceUserHash.length == 32);
-
         // Marketplace user hash must not already exist.
-        require(marketplaceAccounts[_marketplaceUserHash] == 0);
+        require(marketplacesAccounts[_marketplaceUserHash] == 0);
 
-        marketplaceAccounts[_marketplaceUserHash] = msg.sender;
-        freelancerData[msg.sender].subscriptionBlock = int(block.number);
-        freelancerData[msg.sender].userIsActive = true;
-        emit FreelancerSubscribed(msg.sender, block.number);
+        joinDao();
+
+        marketplacesAccounts[_marketplaceUserHash] = msg.sender;
+
         emit FreelancerSubscribedFromMarketPlace(msg.sender, _marketplaceAddress, _marketplaceUserHash);
     }
 
-    function fireaFreelancer(address freelance) onlyOwner public {
-        require(freelancerData[freelance].userIsActive == true);
-        freelancerData[freelance].userIsActive = false;
-        freelancerData[freelance].resignationBlock = int(block.number);
-        emit FreelancerFired(freelance);
-    }
-
-    /******************************************/
-    /*         DAO functions  START HERE      */
-    /******************************************/
-
     /**
-     * Update of the last 4 client evaluations and economical weights
-     * maximum client rating is 50
-     * client rating are stored by community
-     * we only need to store the last 4 ratings/community for voting within the DAO
-     */
-    function registerClientRating(address freelance, address community, uint rating, uint weight) public returns (bool) {
-        require(weight != 0);
-        require(rating > 0 && rating <= 50);
-        require(freelancerData[freelance].userIsActive == true);
+    * @dev Block a Freelancer Ethereum address.
+    * @param _freelancerAddress address The freelancer Ethereum address to block.
+    **/
+    function blockFreelancer(address _freelancerAddress)
+        public
+        onlyOwner
+    {
+        // User must be active.
+        require(freelancerInformation[_freelancerAddress].isActive == true);
+        // User must not be blocked.
+        require(freelancerInformation[_freelancerAddress].isBlocked == false);
 
-        MemberReputation storage reputation = freelancerReputation[freelance][community];
-
-        // update ratings & counter
-        reputation.clientsRatings[reputation.counter] = rating;
-        reputation.ratingsWeights[reputation.counter] = weight;
-        reputation.counter = (reputation.counter + 1) % reputation.clientsRatings.length;
-
-        emit RatingUpdated(freelance);
-        return true;
+        freelancerInformation[_freelancerAddress].isActive = false;
+        freelancerInformation[_freelancerAddress].isBlocked = true;
     }
 
     /**
-     * Contribution update
-     * maximum contribution is 50
-     * new contribution number is added to previous contribution
-     * Decay with 2 decimals is taken into account to decrease contribution number before adding new contribution
-     */
-    function updateContribution(address freelance, address community, int lastcontribution) public returns (int) {
-        require(lastcontribution <= 50);
-        require(freelancerData[freelance].userIsActive == true);
+    * @dev Unblock a Freelancer Ethereum address.
+    * @param _freelancerAddress address The freelancer Ethereum address to unblock.
+    **/
+    function unblockFreelancer(address _freelancerAddress)
+        public
+        onlyOwner
+    {
+        // User must not be active.
+        require(freelancerInformation[_freelancerAddress].isActive == false);
+        // User must be blocked.
+        require(freelancerInformation[_freelancerAddress].isBlocked == true);
 
-        MemberReputation storage reputation = freelancerReputation[freelance][community];
+        freelancerInformation[_freelancerAddress].isActive = true;
+        freelancerInformation[_freelancerAddress].isBlocked = false;
+    }
 
-        int hundreddecay = (100 * (int(block.number) - reputation.contributionRatingBlock)) / blocksPerQuarter;
-        reputation.contributionRating -= (hundreddecay * reputation.contributionRating) / 100;
-        reputation.contributionRating += lastcontribution;
+    /**
+    * @dev Register a client rating for the freelancer, within a community.
+    * @param _freelancerAddress address The freelancer Ethereum address.
+    * @param _communityAddress address The community Ethereum address.
+    * @param _clientRating uint The client rating. From 1 to 50.
+    * @param _clientRatingWeight uint The client rating weight. From 1 to 5.
+    **/
+    function registerClientRating(
+        address _freelancerAddress,
+        address _communityAddress,
+        uint _clientRating,
+        uint _clientRatingWeight
+    )
+        public
+    {
+        // Freelancer must be active.
+        require(freelancerInformation[_freelancerAddress].isActive == true);
+        // Community Ethereum address can't be empty.
+        require (_communityAddress != address(0x0));
+        // Client rating must be between 1 and 50.
+        require(_clientRating > 0 && _clientRating <= 50);
+        // Client rating weight must be between 1 and 5.
+        require(_clientRatingWeight > 0 && _clientRatingWeight <= 5);
 
-        if (reputation.contributionRating > 50) {
-            reputation.contributionRating = 50;
+        FreelancerCommunityReputation storage reputation = freelancerCommunityReputation[_freelancerAddress][_communityAddress];
+
+        reputation.clientsRatings[reputation.clientsRatingsPointer] = _clientRating;
+        reputation.clientsRatingsWeights[reputation.clientsRatingsPointer] = _clientRatingWeight;
+        reputation.clientsRatingsPointer = (reputation.clientsRatingsPointer + 1) % reputation.clientsRatings.length; // TODO: SafeMath
+
+        emit FreelancerNewClientRating(_freelancerAddress, _communityAddress, _clientRating, _clientRatingWeight);
+    }
+
+    /**
+    * @dev Register a community contribution for the freelancer.
+    * @param _freelancerAddress address The freelancer Ethereum address.
+    * @param _communityAddress address The community Ethereum address.
+    * @param _contributionValue int The contribution value. From 1 (least important) to 10 (most important).
+    **/
+    function registerCommunityContribution(
+        address _freelancerAddress,
+        address _communityAddress,
+        int _contributionValue)
+        public
+    {
+        // Freelancer must be active.
+        require(freelancerInformation[_freelancerAddress].isActive == true);
+        // Community Ethereum address can't be empty.
+        require (_communityAddress != address(0x0));
+        // Contribution value must be between 1 (least important) to 10 (most important).
+        require(_contributionValue > 0 && _contributionValue <= 10);
+
+        FreelancerCommunityReputation storage reputation = freelancerCommunityReputation[_freelancerAddress][_communityAddress];
+
+        int decay = int(100 * (block.number - reputation.lastContributionBlock)) / blocksPerQuarter; // TODO: SafeMath
+        reputation.contributionScore -= (decay * reputation.contributionScore) / 100; // TODO: SafeMath
+        reputation.contributionScore += _contributionValue; // TODO: SafeMath
+        if (reputation.contributionScore > 50) {
+            reputation.contributionScore = 50;
         }
+        reputation.lastContributionBlock = block.number;
 
-        reputation.contributionRatingBlock = int(block.number);
-        emit ContributionUpdated(freelance);
-        return reputation.contributionRating;
+        emit FreelancerNewContribution(_freelancerAddress, _communityAddress, _contributionValue);
     }
 
     /**
     * @dev Compute vote weight of one user within one community.
-    * @param _freelance address Address of the freelance.
-    * @param _community uint256 Address of the community.
+    * @param _freelancerAddress address Address of the freelance.
+    * @param _communityAddress uint256 Address of the community.
     **/
-    function getFreelancerDataForVoting(address _freelance, address _community)
+    function getFreelancerVoteWeight(address _freelancerAddress, address _communityAddress)
         constant
         public
-        returns (bool userIsActive, int contributionRating, uint clientRating)
+        returns (bool freelancerIsActive, int freelancerContributionRating, uint freelancerClientsRatings)
     {
-        userIsActive = freelancerData[_freelance].userIsActive;
-        if (userIsActive == false) {
+        freelancerIsActive = freelancerInformation[_freelancerAddress].isActive;
+        if (freelancerIsActive == false) {
             return (false, 0, 0);
         }
-        MemberReputation memory reputation = freelancerReputation[_freelance][_community];
-        contributionRating = reputation.contributionRating;
+        FreelancerCommunityReputation memory reputation = freelancerCommunityReputation[_freelancerAddress][_communityAddress];
+        int contributionScore = reputation.contributionScore;
         for (uint i = 0; i < reputation.clientsRatings.length; i++) {
-            clientRating += reputation.ratingsWeights[i] * reputation.clientsRatings[i];
+            freelancerClientsRatings += reputation.clientsRatingsWeights[i] * reputation.clientsRatings[i]; // TODO: SafeMath
         }
     }
 }
