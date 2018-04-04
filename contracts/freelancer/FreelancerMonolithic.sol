@@ -53,72 +53,111 @@ contract Freelancer is Ownable {
 
     struct FreelancerInfo {
 
-        // Active user?
-        bool userState;
+        // Active freelancer?
+        bool userIsActive;
 
-        // subscribion block
+        // Block number when the freelancer subscribed.
         int subscriptionBlock;
 
-        // resignation block
+        // Block number when the freelancer resigned.
         int resignationBlock;
+
+        //
     }
 
     struct MemberReputation {
-        // contribution within the community
+
+        // Contribution rating of the freelancer, within the community.
         int contributionRating;
 
-        // to compute decay (over time decrease)
+        // Contibution rating block, to compute decay (reputation decreases with time).
         int contributionRatingBlock;
 
         // Ratings by the clients.
-        uint[4] clientRatings;
-        uint[4] ratingWeights;
+        uint[4] clientsRatings;
+
+        // Ratings weights.
+        uint[4] ratingsWeights;
+
         uint counter;
     }
 
-    // 650000 block average 3 months
-    int blockPerQuarter;
+    // Number of blocks in a Quarter.
+    int blocksPerQuarter;
+
+    // Owner of the contract.
     address owner;
 
-    // If a newer version of this registry is available, force users to use it cf Drupal
-    bool _registrationDisabled;
-
-    // Mapping that matches Drupal generated hash with Ethereum Account address.
-    // Drupal Hash => Ethereum address
-    mapping(bytes32 => address) _accounts;
+    // Freelancers information.
     mapping(address => FreelancerInfo) private freelancerData;
 
-    // freelancer => (commmunity => reputation), for voting, weight depend on the community
+    // Freelancers reputation by community. freelancer address => (community address => reputation).
     mapping(address => mapping(address => MemberReputation)) private freelancerReputation;
 
-    // Drupal Event allowing listening to newly action
-    event AccountCreatedEvent(address indexed from, bytes32 indexed hash, int error);
+    // Mapping of Marketplace user hashes => Freelancer Ethereum addresses.
+    mapping(bytes32 => address) public marketplaceAccounts;
 
-    // DAO Events
+    // Event: a freelancer subscribed.
+    event FreelancerSubscribed(address indexed _freelancer, uint _blockNumber);
+
+    // Event: a freelancer subscribed from a Marketplace.
+    event FreelancerSubscribedFromMarketPlace(address indexed _freelancerAddress, address indexed _marketplaceAddress, bytes32 indexed _marketplaceUserHash);
     event RatingUpdated(address indexed user);
     event ContributionUpdated(address indexed user);
     event FreelancerFired(address indexed user);
 
     /**
-     * init owner and delay for decay calculation
-     */
-    function Freelancer() public {
+    * @dev Init owner and delay for decay calculation.
+    **/
+    function Freelancer()
+        public
+    {
+        // Owner = contract creator.
         owner = msg.sender;
-        blockPerQuarter = 650000;
+        // 60s / 15blocks * 60min * 24h * 30d * 3months = 518400 blocks / quarter.
+        blocksPerQuarter = 518400;
     }
 
     /**
-     * Minimum to join a DAO when non Drupal user
-     */
-    function joinDao() public {
-        require(freelancerData[msg.sender].userState == false);
-        freelancerData[msg.sender].userState = true;
+    * @dev Join the DAO.
+    **/
+    function joinDao()
+        public
+    {
+        // The user Ethereum address must not exist yet in the registry.
+        require(freelancerData[msg.sender].userIsActive == false);
+        freelancerData[msg.sender].userIsActive = true;
         freelancerData[msg.sender].subscriptionBlock = int(block.number);
+        emit FreelancerSubscribed(msg.sender, block.number);
+    }
+
+    /**
+    * @dev Join the DAO from a Marketplace.
+    * @param _marketplaceAddress The Marketplace Ethereum address.
+    * @param _marketplaceUserHash The Marketplace can submit a unique hash by user.
+    **/
+    function joinDaoFromMarketplace(address _marketplaceAddress, bytes32 _marketplaceUserHash)
+        public
+    {
+        // Marketplace Ethereum address can't be empty.
+        require (_marketplaceAddress != address(0x0));
+
+        // Marketplace user hash must be 32 bytes.
+        require (_marketplaceUserHash.length == 32);
+
+        // Marketplace user hash must not already exist.
+        require(marketplaceAccounts[_marketplaceUserHash] == 0);
+
+        marketplaceAccounts[_marketplaceUserHash] = msg.sender;
+        freelancerData[msg.sender].subscriptionBlock = int(block.number);
+        freelancerData[msg.sender].userIsActive = true;
+        emit FreelancerSubscribed(msg.sender, block.number);
+        emit FreelancerSubscribedFromMarketPlace(msg.sender, _marketplaceAddress, _marketplaceUserHash);
     }
 
     function fireaFreelancer(address freelance) onlyOwner public {
-        require(freelancerData[freelance].userState == true);
-        freelancerData[freelance].userState = false;
+        require(freelancerData[freelance].userIsActive == true);
+        freelancerData[freelance].userIsActive = false;
         freelancerData[freelance].resignationBlock = int(block.number);
         emit FreelancerFired(freelance);
     }
@@ -136,14 +175,14 @@ contract Freelancer is Ownable {
     function registerClientRating(address freelance, address community, uint rating, uint weight) public returns (bool) {
         require(weight != 0);
         require(rating > 0 && rating <= 50);
-        require(freelancerData[freelance].userState == true);
+        require(freelancerData[freelance].userIsActive == true);
 
         MemberReputation storage reputation = freelancerReputation[freelance][community];
 
         // update ratings & counter
-        reputation.clientRatings[reputation.counter] = rating;
-        reputation.ratingWeights[reputation.counter] = weight;
-        reputation.counter = (reputation.counter + 1) % reputation.clientRatings.length;
+        reputation.clientsRatings[reputation.counter] = rating;
+        reputation.ratingsWeights[reputation.counter] = weight;
+        reputation.counter = (reputation.counter + 1) % reputation.clientsRatings.length;
 
         emit RatingUpdated(freelance);
         return true;
@@ -157,11 +196,11 @@ contract Freelancer is Ownable {
      */
     function updateContribution(address freelance, address community, int lastcontribution) public returns (int) {
         require(lastcontribution <= 50);
-        require(freelancerData[freelance].userState == true);
+        require(freelancerData[freelance].userIsActive == true);
 
         MemberReputation storage reputation = freelancerReputation[freelance][community];
 
-        int hundreddecay = (100 * (int(block.number) - reputation.contributionRatingBlock)) / blockPerQuarter;
+        int hundreddecay = (100 * (int(block.number) - reputation.contributionRatingBlock)) / blocksPerQuarter;
         reputation.contributionRating -= (hundreddecay * reputation.contributionRating) / 100;
         reputation.contributionRating += lastcontribution;
 
@@ -182,49 +221,16 @@ contract Freelancer is Ownable {
     function getFreelancerDataForVoting(address _freelance, address _community)
         constant
         public
-        returns (bool userState, int contributionRating, uint clientRating)
+        returns (bool userIsActive, int contributionRating, uint clientRating)
     {
-        userState = freelancerData[_freelance].userState;
-        if (userState == false) {
+        userIsActive = freelancerData[_freelance].userIsActive;
+        if (userIsActive == false) {
             return (false, 0, 0);
         }
         MemberReputation memory reputation = freelancerReputation[_freelance][_community];
         contributionRating = reputation.contributionRating;
-        for (uint i = 0; i < reputation.clientRatings.length; i++) {
-            clientRating += reputation.ratingWeights[i] * reputation.clientRatings[i];
-        }
-    }
-
-    /******************************************/
-    /*   DRUPALtoDAO functions START HERE    */
-    /******************************************/
-
-    function accountCreated(address from, bytes32 _hash, int error) public {
-        emit AccountCreatedEvent(from, _hash, error);
-    }
-
-    function validateFreelancerByHash (bytes32 drupalUserHash) constant public returns (address) {
-        return _accounts[drupalUserHash];
-    }
-
-    function joinasafreelancer(bytes32 drupalUserHash) public {
-        if (_accounts[drupalUserHash] == msg.sender) {
-            // Hash allready registered to address.
-            accountCreated(msg.sender, drupalUserHash, 4);
-        } else if (_accounts[drupalUserHash] > 0) {
-            // Hash allready registered to different address.
-            accountCreated(msg.sender, drupalUserHash, 3);
-        } else if (drupalUserHash.length > 32) {
-            // Hash too long
-            accountCreated(msg.sender, drupalUserHash, 2);
-        } else if (_registrationDisabled) {
-            // Registry is disabled because a newer version is available
-            accountCreated(msg.sender, drupalUserHash, 1);
-        } else {
-            _accounts[drupalUserHash] = msg.sender;
-            accountCreated(msg.sender, drupalUserHash, 0);
-            freelancerData[msg.sender].subscriptionBlock = int(block.number);
-            freelancerData[msg.sender].userState = true;
+        for (uint i = 0; i < reputation.clientsRatings.length; i++) {
+            clientRating += reputation.ratingsWeights[i] * reputation.clientsRatings[i];
         }
     }
 }
