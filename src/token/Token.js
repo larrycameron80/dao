@@ -166,25 +166,6 @@ class Token extends Component {
   render() {
     return (
       <div className="Token">
-        <div className="Token-ethereum-address">
-          <h2>My Ethereum address</h2>
-          <div className="Token-ethereum-address-address blue box">
-            <p>
-              <a
-                href={ 'https://ropsten.etherscan.io/address/' + this.context.web3.selectedAccount }
-                target="_blank" rel="noopener noreferrer">
-                  { this.context.web3.selectedAccount }
-              </a>
-              <CopyToClipboard
-                text = { this.context.web3.selectedAccount }
-                onCopy = { () => NotificationManager.success('Copied to clipboard') }>
-                <Button
-                  value = "copy"
-                  icon = { faCopy } />
-              </CopyToClipboard>
-            </p>
-          </div>
-        </div>
         <div className="Token-token">
           <h2>{ 'My ' + this.state.tokenSymbol + 's' }</h2>
           <div className="green box">
@@ -213,6 +194,25 @@ class Token extends Component {
               <p>Display this on your desktop. On your mobile, open Cipher Browser, go to your account details, click <em>ADD TOKENS</em> and scan this QR code.</p>
               <QrCode value = { process.env.REACT_APP_TOKEN_ADDRESS } />
             </div>
+          </div>
+        </div>
+        <div className="Token-ethereum-address">
+          <h2>My Ethereum address</h2>
+          <div className="Token-ethereum-address-address blue box">
+            <p>
+              <a
+                href={ 'https://ropsten.etherscan.io/address/' + this.context.web3.selectedAccount }
+                target="_blank" rel="noopener noreferrer">
+                  { this.context.web3.selectedAccount }
+              </a>
+              <CopyToClipboard
+                text = { this.context.web3.selectedAccount }
+                onCopy = { () => NotificationManager.success('Copied to clipboard') }>
+                <Button
+                  value = "copy"
+                  icon = { faCopy } />
+              </CopyToClipboard>
+            </p>
           </div>
         </div>
       </div>
