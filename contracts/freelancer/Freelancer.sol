@@ -1,6 +1,7 @@
 pragma solidity ^0.4.21;
 
 import '../ownership/Ownable.sol';
+import '../math/SafeMath.sol';
 
 /**
  * @title Freelancer
@@ -8,6 +9,7 @@ import '../ownership/Ownable.sol';
  * @author Talao
  */
 contract Freelancer is Ownable {
+    using SafeMath for uint256;
 
     struct FreelancerInformation {
         // Active freelancer?
@@ -21,10 +23,12 @@ contract Freelancer is Ownable {
         uint[4] clientsRatings;
         // Clients ratings weights within a community.
         uint[4] clientsRatingsWeights;
-        // Pointer to loop through clients ratings and always keep 4.
+        // Pointer to loop through clients ratings and always keep 4. From 0 to 3.
         uint clientsRatingsPointer;
         // Community contribution score of the freelancer.
-        int contributionScore;
+        // uint is needed, int functions not yet in SafeMath
+        // @see https://github.com/OpenZeppelin/zeppelin-solidity/pull/835
+        uint contributionScore;
         // Block number of the latest community contribution score update, to compute decay (reputation decreases with time).
         uint lastContributionBlock;
     }
@@ -32,7 +36,7 @@ contract Freelancer is Ownable {
     // Owner of the contract.
     address owner;
     // Number of blocks in a Quarter.
-    int blocksPerQuarter;
+    uint blocksPerQuarter;
     // Freelancers information.
     mapping(address => FreelancerInformation) private freelancerInformation;
     // Freelancers reputation by community. Freelancer address => (Community address => Reputation).
@@ -58,7 +62,7 @@ contract Freelancer is Ownable {
     event FreelancerNewContribution(
         address indexed _freelancerAddress,
         address indexed _communityAddress,
-        int _contributionValue
+        uint _contributionValue
     );
 
     /**
@@ -139,7 +143,15 @@ contract Freelancer is Ownable {
 
         reputation.clientsRatings[reputation.clientsRatingsPointer] = _clientRating;
         reputation.clientsRatingsWeights[reputation.clientsRatingsPointer] = _clientRatingWeight;
-        reputation.clientsRatingsPointer = (reputation.clientsRatingsPointer + 1) % reputation.clientsRatings.length; // TODO: SafeMath
+
+        // 4 client Ratings by freelancer & community at maximum. If more, we replace the older ones.
+        if (reputation.clientsRatingsPointer == 3) {
+          reputation.clientsRatingsPointer = 0;
+        }
+        // Increase pointer for the next client rating.
+        else {
+          reputation.clientsRatingsPointer.add(1);
+        }
 
         emit FreelancerNewClientRating(_freelancerAddress, _communityAddress, _clientRating, _clientRatingWeight);
     }
@@ -148,12 +160,13 @@ contract Freelancer is Ownable {
     * @dev Register a community contribution for the freelancer.
     * @param _freelancerAddress address The freelancer Ethereum address.
     * @param _communityAddress address The community Ethereum address.
-    * @param _contributionValue int The contribution value. From 1 (least important) to 10 (most important).
+    * @param _contributionValue uint The contribution value. From 1 (least important) to 10 (most important).
     **/
     function registerCommunityContribution(
         address _freelancerAddress,
         address _communityAddress,
-        int _contributionValue)
+        uint _contributionValue
+    )
         public
     {
         // Freelancer must be active.
@@ -165,12 +178,33 @@ contract Freelancer is Ownable {
 
         FreelancerCommunityReputation storage reputation = freelancerCommunityReputation[_freelancerAddress][_communityAddress];
 
-        int decay = int(100 * (block.number - reputation.lastContributionBlock)) / blocksPerQuarter; // TODO: SafeMath
-        reputation.contributionScore -= (decay * reputation.contributionScore) / 100; // TODO: SafeMath
-        reputation.contributionScore += _contributionValue; // TODO: SafeMath
+        // Decay of the contribution score with time (basic implementation).
+        // For now, in a Quarter without any new contribution registration, the freelance loses all his previous contribution score.
+        // It is gradual, but can be abused in different ways, so this needs more work.
+        uint blocksSinceLastCommunityContributionRegistration = (block.number).sub(reputation.lastContributionBlock);
+        // We can't store floating numbers, so before dividing, we multiply by 100 temporarily.
+        uint blocksSinceLastCommunityContributionRegistrationMultipliedByOneHundred = blocksSinceLastCommunityContributionRegistration.mul(100);
+        uint decayMultipliedByOneHundred = blocksSinceLastCommunityContributionRegistrationMultipliedByOneHundred.div(blocksPerQuarter);
+        uint lostContributionScoreMultipliedByOneHundred = (reputation.contributionScore).mul(decayMultipliedByOneHundred);
+        // Final lost contribution score.
+        uint lostContributionScore = lostContributionScoreMultipliedByOneHundred.div(100);
+        // If more than one Quarter elapsed, loose all (to avoid negative results).
+        if (lostContributionScore > reputation.contributionScore) {
+          reputation.contributionScore = 0;
+        }
+        // Else loose just the lost contribution score.
+        else {
+          (reputation.contributionScore).sub(lostContributionScore);
+        }
+
+        // Add new contribution value to the contribution score.
+        reputation.contributionScore = (reputation.contributionScore).add(_contributionValue);
+        // Max contribution score is 50.
         if (reputation.contributionScore > 50) {
             reputation.contributionScore = 50;
         }
+
+        // Update the last contribution block number, to compute the decay in the next contribution registration.
         reputation.lastContributionBlock = block.number;
 
         emit FreelancerNewContribution(_freelancerAddress, _communityAddress, _contributionValue);
@@ -189,29 +223,30 @@ contract Freelancer is Ownable {
     }
 
     /**
-    * @dev Compute vote weight of one user within one community.
+    * @dev Get infos on the freelancer to compute his vote weight within one community.
     * @param _freelancerAddress address Address of the freelance.
     * @param _communityAddress uint256 Address of the community.
     **/
     function getFreelancerVoteWeight(address _freelancerAddress, address _communityAddress)
         constant
         public
-        returns (bool freelancerIsActive, int freelancerContributionRating, uint freelancerClientsRatings)
+        returns (bool freelancerIsActive, uint freelancerContributionRating, uint freelancerClientsRatings)
     {
         freelancerIsActive = freelancerInformation[_freelancerAddress].isActive;
         if (freelancerIsActive == false) {
             return (false, 0, 0);
         }
         FreelancerCommunityReputation memory reputation = freelancerCommunityReputation[_freelancerAddress][_communityAddress];
-        int contributionScore = reputation.contributionScore;
+        uint contributionScore = reputation.contributionScore;
         for (uint i = 0; i < reputation.clientsRatings.length; i++) {
-            freelancerClientsRatings += reputation.clientsRatingsWeights[i] * reputation.clientsRatings[i]; // TODO: SafeMath
+            uint freelancerClientRating = (reputation.clientsRatingsWeights[i]).mul(reputation.clientsRatings[i]);
+            freelancerClientsRatings = freelancerClientsRatings.add(freelancerClientRating);
         }
     }
 
     /**
     * @dev Block a Freelancer Ethereum address.
-    * @param _freelancerAddress address The freelancer address to block.
+    * @param _freelancerAddress address The freelancer Ethereum address to block.
     **/
     function blockFreelancer(address _freelancerAddress)
         public
