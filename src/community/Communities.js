@@ -7,7 +7,7 @@ class Communities extends Component {
   constructor (props) {
     super (props);
 
-    const contractFactory= new window.web3.eth.Contract (
+    const contractFactory = new window.web3.eth.Contract (
       JSON.parse(process.env.REACT_APP_COMMUNITY_FACTORY_ABI),
       process.env.REACT_APP_COMMUNITY_FACTORY_ADDRESS
     );
