@@ -112,40 +112,6 @@ contract Freelancer is Ownable {
     }
 
     /**
-    * @dev Block a Freelancer Ethereum address.
-    * @param _freelancerAddress address The freelancer Ethereum address to block.
-    **/
-    function blockFreelancer(address _freelancerAddress)
-        public
-        onlyOwner
-    {
-        // User must be active.
-        require(freelancerInformation[_freelancerAddress].isActive == true);
-        // User must not be blocked.
-        require(freelancerInformation[_freelancerAddress].isBlocked == false);
-
-        freelancerInformation[_freelancerAddress].isActive = false;
-        freelancerInformation[_freelancerAddress].isBlocked = true;
-    }
-
-    /**
-    * @dev Unblock a Freelancer Ethereum address.
-    * @param _freelancerAddress address The freelancer Ethereum address to unblock.
-    **/
-    function unblockFreelancer(address _freelancerAddress)
-        public
-        onlyOwner
-    {
-        // User must not be active.
-        require(freelancerInformation[_freelancerAddress].isActive == false);
-        // User must be blocked.
-        require(freelancerInformation[_freelancerAddress].isBlocked == true);
-
-        freelancerInformation[_freelancerAddress].isActive = true;
-        freelancerInformation[_freelancerAddress].isBlocked = false;
-    }
-
-    /**
     * @dev Register a client rating for the freelancer, within a community.
     * @param _freelancerAddress address The freelancer Ethereum address.
     * @param _communityAddress address The community Ethereum address.
@@ -211,6 +177,18 @@ contract Freelancer is Ownable {
     }
 
     /**
+    * @dev Checks if the freelancer is active in the DAO.
+    * @param _freelancerAddress address Address of the freelance.
+    **/
+    function isFreelancerActive(address _freelancerAddress)
+        constant
+        public
+        returns (bool freelancerIsActive)
+    {
+        freelancerIsActive = freelancerInformation[_freelancerAddress].isActive;
+    }
+
+    /**
     * @dev Compute vote weight of one user within one community.
     * @param _freelancerAddress address Address of the freelance.
     * @param _communityAddress uint256 Address of the community.
@@ -229,5 +207,39 @@ contract Freelancer is Ownable {
         for (uint i = 0; i < reputation.clientsRatings.length; i++) {
             freelancerClientsRatings += reputation.clientsRatingsWeights[i] * reputation.clientsRatings[i]; // TODO: SafeMath
         }
+    }
+
+    /**
+    * @dev Block a Freelancer Ethereum address.
+    * @param _freelancerAddress address The freelancer Ethereum address to block.
+    **/
+    function blockFreelancer(address _freelancerAddress)
+        public
+        onlyOwner
+    {
+        // User must be active.
+        require(freelancerInformation[_freelancerAddress].isActive == true);
+        // User must not be blocked.
+        require(freelancerInformation[_freelancerAddress].isBlocked == false);
+
+        freelancerInformation[_freelancerAddress].isActive = false;
+        freelancerInformation[_freelancerAddress].isBlocked = true;
+    }
+
+    /**
+    * @dev Unblock a Freelancer Ethereum address.
+    * @param _freelancerAddress address The freelancer Ethereum address to unblock.
+    **/
+    function unblockFreelancer(address _freelancerAddress)
+        public
+        onlyOwner
+    {
+        // User must not be active.
+        require(freelancerInformation[_freelancerAddress].isActive == false);
+        // User must be blocked.
+        require(freelancerInformation[_freelancerAddress].isBlocked == true);
+
+        freelancerInformation[_freelancerAddress].isActive = true;
+        freelancerInformation[_freelancerAddress].isBlocked = false;
     }
 }
