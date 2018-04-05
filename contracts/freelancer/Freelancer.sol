@@ -211,7 +211,7 @@ contract Freelancer is Ownable {
 
     /**
     * @dev Block a Freelancer Ethereum address.
-    * @param _freelancerAddress address The freelancer Ethereum address to block.
+    * @param _freelancerAddress address The freelancer address to block.
     **/
     function blockFreelancer(address _freelancerAddress)
         public
