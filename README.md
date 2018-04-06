@@ -2,9 +2,6 @@
 
 Based on https://github.com/facebook/create-react-app
 
-The `truffled` branch serves to integrate the truffle development framework to
-Talao's DAO project.
-
 ## tl;dr
 
     git clone git@github.com:TalaoDAO/dao.git
