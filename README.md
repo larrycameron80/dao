@@ -49,6 +49,20 @@ To deploy the TALAO token contract you must add the other Solidity contracts it 
 
 ... Or just use TalaoTokenMonolithic.sol
 
+## Smart contracts tests
+
+You must have Truffle installed globaly:
+
+    npm install -g truffle
+
+Launch the Truffle develop console
+
+    truffle develop
+
+Inside of the Truffle develop console, launch the tests:
+
+    test
+
 ## Contributing
 
 + See [CONTRIBUTING.md](https://github.com/TalaoDAO/dao/blob/dev/CONTRIBUTING.md)
