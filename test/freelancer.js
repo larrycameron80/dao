@@ -1,4 +1,5 @@
 var Freelancer = artifacts.require('./contracts/freelancer/Freelancer.sol');
+var crypto = require('crypto');
 
 contract('Freelancer', function(accounts) {
   it('should check that the freelancer/account#1 can join the DAO', function() {
@@ -14,7 +15,7 @@ contract('Freelancer', function(accounts) {
   });
   it('should check that the freelancer/account#2 can join the DAO through the marketplace/account#3', function() {
     var contract;
-    var userHash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'; //TODO: generate it
+    var userHash = crypto.randomBytes(32).toString('hex');
     return Freelancer.deployed().then(function(instance) {
       contract = instance;
       return contract.joinDaoFromMarketplace(accounts[2], userHash, {from: accounts[2]});
