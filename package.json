@@ -29,6 +29,7 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "crypto": "^1.0.1"
+    "crypto": "^1.0.1",
+    "crypto-price": "0.0.4"
   }
 }
