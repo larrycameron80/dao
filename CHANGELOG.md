@@ -1,5 +1,10 @@
 # Talao DAO prototype: changelog
 
+## 0.8.0
+
++ Rewrite & cleanup of Freelancer.sol (still WIP)
++ Beginning of integration between Freelancer and Community (and TalaoToken)
+
 ## 0.7.0
 
 + Communities
