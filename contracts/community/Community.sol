@@ -2,6 +2,7 @@ pragma solidity ^0.4.21;
 
 import '../ownership/Ownable.sol';
 import './token/TalaoToken.sol';
+import './freelancer/Freelancer.sol';
 
 /**
  * @title Community
@@ -12,6 +13,9 @@ contract Community is Ownable {
 
     // Talao token.
     TalaoToken public talaotoken;
+
+    // Freelancer.
+    Freelancer public freelancerContract;
 
     // Community name.
     string public communityName;
@@ -47,11 +51,12 @@ contract Community is Ownable {
     uint256 public communityTokenBalance;
 
     // Event: a freelancer joined a community.
-    event CommunitySubscription(address indexed freelancer, bool msg);
+    event CommunitySubscription(address indexed _freelancerAddress, address indexed _communityAddress);
 
     /**
     * @dev Community.
-    * @param _token address The address of the Talao token.
+    * @param _token address The address of the Talao token smart contract.
+    * @param _freelancerContractAddress address The address of the Freelancer smart contract.
     * @param _name string Community name.
     * @param _isprivate bool Private community?
     * @param _sponsor address Sponsor address if private community.
@@ -61,14 +66,28 @@ contract Community is Ownable {
     * @param _jobcommission uint (Community commission on job) / 100. 100 means 1%. From 0 to 10000.
     * @param _joinfee uint Fee to join community.
     **/
-    function Community(address _token, string _name, bool _isprivate, address _sponsor, uint _balancetovote, uint _mintokens, uint _minreputation, uint _jobcommission, uint _joinfee)
+    function Community(
+        address _token,
+        address _freelancerContractAddress,
+        string _name,
+        bool _isprivate,
+        address _sponsor,
+        uint _balancetovote,
+        uint _mintokens,
+        uint _minreputation,
+        uint _jobcommission,
+        uint _joinfee
+    )
         public
     {
         // By default, new communities are active.
         communityIsActive = true;
 
-        // Params.
+        // Load smart contract depencencies.
         talaotoken = TalaoToken(_token);
+        freelancerContract = Freelancer(_freelancerContractAddress);
+
+        // Community params.
         communityName = _name;
         communityIsPrivate = _isprivate;
         communitySponsor = _sponsor;
@@ -105,8 +124,12 @@ contract Community is Ownable {
     function joinCommunity()
         public
     {
+        // To join a community, freelancers must have registred in the DAO.
+        require(freelancerContract.isFreelancerActive(msg.sender) == true);
+
         communityMembers[msg.sender] = true;
-        emit CommunitySubscription(msg.sender, true);
+
+        emit CommunitySubscription(msg.sender, this);
     }
 
     /**
@@ -120,7 +143,6 @@ contract Community is Ownable {
             revert();
         }
         communityMembers[msg.sender] = false;
-        emit CommunitySubscription(msg.sender, false);
     }
 
     /**

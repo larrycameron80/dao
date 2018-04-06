@@ -32,3 +32,24 @@
   color: #007d50;
   background-color: white;
 }
+
+.yellow .btn {
+  color: black;
+  background-color: #ffdc05;
+  border: 2px solid black;
+}
+
+.yellow .btn:hover {
+  color: #ffdc05;
+  background-color: black;
+}
+
+.blue-dark .btn {
+  color: white;
+  background-color: #232D55;
+}
+
+.blue-dark .btn:hover {
+  color: #232D55;
+  background-color: white;
+}
